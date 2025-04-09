@@ -1,0 +1,8 @@
+﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("PathWeaver.Specs")]
+namespace PathWeaver
+{
+    public class PathWeaver
+    {
+        public PathWeaver() { }
+    }
+}

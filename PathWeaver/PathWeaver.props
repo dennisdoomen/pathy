@@ -1,0 +1,7 @@
+<!-- Make sure the source code files are excluded from the Solution Explorer in the project that used this package -->
+<Project>
+  <ItemGroup>
+    <Compile Update="@(Compile)">
+    </Compile>
+  </ItemGroup>
+</Project>
