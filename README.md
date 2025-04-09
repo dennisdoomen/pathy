@@ -8,16 +8,16 @@
 
 <div align="center">
 
-[![](https://img.shields.io/github/actions/workflow/status/your-github-username/pathweaver/build.yml?branch=main)](https://github.com/your-github-username/pathweaver/actions?query=branch%3amain)
-[![Coveralls branch](https://img.shields.io/coverallsCoverage/github/your-github-username/pathweaver?branch=main)](https://coveralls.io/github/your-github-username/pathweaver?branch=main)
-[![](https://img.shields.io/github/release/your-github-username/pathweaver.svg?label=latest%20release&color=007edf)](https://github.com/your-github-username/pathweaver/releases/latest)
+[![](https://img.shields.io/github/actions/workflow/status/dennisdoomen/pathweaver/build.yml?branch=main)](https://github.com/dennisdoomen/pathweaver/actions?query=branch%3amain)
+[![Coveralls branch](https://img.shields.io/coverallsCoverage/github/dennisdoomen/pathweaver?branch=main)](https://coveralls.io/github/dennisdoomen/pathweaver?branch=main)
+[![](https://img.shields.io/github/release/dennisdoomen/pathweaver.svg?label=latest%20release&color=007edf)](https://github.com/dennisdoomen/pathweaver/releases/latest)
 [![](https://img.shields.io/nuget/dt/pathweaver.svg?label=downloads&color=007edf&logo=nuget)](https://www.nuget.org/packages/pathweaver)
 [![](https://img.shields.io/librariesio/dependents/nuget/pathweaver.svg?label=dependent%20libraries)](https://libraries.io/nuget/pathweaver)
-![GitHub Repo stars](https://img.shields.io/github/stars/your-github-username/pathweaver?style=flat)
-[![GitHub contributors](https://img.shields.io/github/contributors/your-github-username/pathweaver)](https://github.com/your-github-username/pathweaver/graphs/contributors)
-[![GitHub last commit](https://img.shields.io/github/last-commit/your-github-username/pathweaver)](https://github.com/your-github-username/pathweaver)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/your-github-username/pathweaver)](https://github.com/your-github-username/pathweaver/graphs/commit-activity)
-[![open issues](https://img.shields.io/github/issues/your-github-username/pathweaver)](https://github.com/your-github-username/pathweaver/issues)
+![GitHub Repo stars](https://img.shields.io/github/stars/dennisdoomen/pathweaver?style=flat)
+[![GitHub contributors](https://img.shields.io/github/contributors/dennisdoomen/pathweaver)](https://github.com/dennisdoomen/pathweaver/graphs/contributors)
+[![GitHub last commit](https://img.shields.io/github/last-commit/dennisdoomen/pathweaver)](https://github.com/dennisdoomen/pathweaver)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/dennisdoomen/pathweaver)](https://github.com/dennisdoomen/pathweaver/graphs/commit-activity)
+[![open issues](https://img.shields.io/github/issues/dennisdoomen/pathweaver)](https://github.com/dennisdoomen/pathweaver/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 ![](https://img.shields.io/badge/release%20strategy-githubflow-orange.svg)
 ![Static Badge](https://img.shields.io/badge/4.7%2C_6.0%2C_netstandard2.0%2C_netstandard2.1-dummy?label=dotnet&color=%235027d5)
@@ -90,8 +90,8 @@ Your contributions are always welcome! Please have a look at the [contribution g
 
 Previous contributors include:
 
-<a href="https://github.com/your-github-username/pathweaver/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=your-github-username/pathweaver" alt="contrib.rocks image" />
+<a href="https://github.com/dennisdoomen/pathweaver/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dennisdoomen/pathweaver" alt="contrib.rocks image" />
 </a>
 
 (Made with [contrib.rocks](https://contrib.rocks))
@@ -115,9 +115,9 @@ This library wouldn't have been possible without the following tools, packages a
 * [Verify](https://github.com/VerifyTests/Verify) - Snapshot testing by [Simon Cropp](https://github.com/SimonCropp)
 
 ## Support the project
-* [Github Sponsors](https://github.com/sponsors/your-github-username)
+* [Github Sponsors](https://github.com/sponsors/dennisdoomen)
 * [Tip Me](https://paypal.me/your-paypal-username)
-* [Buy me a Coffee](https://ko-fi.com/your-github-username)
+* [Buy me a Coffee](https://ko-fi.com/dennisdoomen)
 * [Patreon](https://patreon.com/your-patreon-username)
 
 ## You may also like
