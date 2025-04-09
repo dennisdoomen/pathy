@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <!-- 👇 This is the ID of the package in NuGet -->
+    <id>PathWeaver</id>
+    <version>$version$</version>
+    <!-- 👇 Indicates the package is only used at build time, not deploy time -->
+    <developmentDependency>true</developmentDependency>
+    <authors>Dennis Doomen</authors>
+    <license type="expression">MIT</license>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/dennisdoomen/PathWeaver</projectUrl>
+    <description>Fluently building and using file and directory paths without binary dependencies</description>
+    <tags>source directory paths</tags>
+  </metadata>
+  <files>
+    <file src="*.cs" target="contentFiles/cs/net6.0/PathWeaver/"/>
+    <file src="*.cs" target="contentFiles/cs/net4.7/PathWeaver/"/>
+    <file src="*.cs" target="contentFiles/cs/netstandard2.0/PathWeaver/"/>
+    <file src="*.cs" target="contentFiles/cs/netstandard2.1/PathWeaver/"/>
+    <!-- 👇 Hide content files from Visual Studio solution explorer  -->
+    <file src="PathWeaver.props" target="build/PathWeaver.props" />
+  </files>
+</package>
