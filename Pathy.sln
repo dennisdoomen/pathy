@@ -10,11 +10,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{4D180A10
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PathWeaver", "PathWeaver\PathWeaver.csproj", "{5477FF7B-BE6D-48EF-9164-E89F658027E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pathy", "Pathy\Pathy.csproj", "{5477FF7B-BE6D-48EF-9164-E89F658027E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PathWeaver.Specs", "PathWeaver.Specs\PathWeaver.Specs.csproj", "{775114E1-DC36-44A9-9150-79738A95DA00}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pathy.Specs", "Pathy.Specs\Pathy.Specs.csproj", "{775114E1-DC36-44A9-9150-79738A95DA00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PathWeaver.ApiVerificationTests", "PathWeaver.ApiVerificationTests\PathWeaver.ApiVerificationTests.csproj", "{2556E20E-7408-4E55-BFD1-344535F8D940}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pathy.ApiVerificationTests", "Pathy.ApiVerificationTests\Pathy.ApiVerificationTests.csproj", "{2556E20E-7408-4E55-BFD1-344535F8D940}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

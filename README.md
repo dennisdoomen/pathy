@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  PathWeaver
+  Pathy
   <br>
 </h1>
 
@@ -8,16 +8,16 @@
 
 <div align="center">
 
-[![](https://img.shields.io/github/actions/workflow/status/dennisdoomen/pathweaver/build.yml?branch=main)](https://github.com/dennisdoomen/pathweaver/actions?query=branch%3amain)
-[![Coveralls branch](https://img.shields.io/coverallsCoverage/github/dennisdoomen/pathweaver?branch=main)](https://coveralls.io/github/dennisdoomen/pathweaver?branch=main)
-[![](https://img.shields.io/github/release/dennisdoomen/pathweaver.svg?label=latest%20release&color=007edf)](https://github.com/dennisdoomen/pathweaver/releases/latest)
-[![](https://img.shields.io/nuget/dt/pathweaver.svg?label=downloads&color=007edf&logo=nuget)](https://www.nuget.org/packages/pathweaver)
-[![](https://img.shields.io/librariesio/dependents/nuget/pathweaver.svg?label=dependent%20libraries)](https://libraries.io/nuget/pathweaver)
-![GitHub Repo stars](https://img.shields.io/github/stars/dennisdoomen/pathweaver?style=flat)
-[![GitHub contributors](https://img.shields.io/github/contributors/dennisdoomen/pathweaver)](https://github.com/dennisdoomen/pathweaver/graphs/contributors)
-[![GitHub last commit](https://img.shields.io/github/last-commit/dennisdoomen/pathweaver)](https://github.com/dennisdoomen/pathweaver)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/dennisdoomen/pathweaver)](https://github.com/dennisdoomen/pathweaver/graphs/commit-activity)
-[![open issues](https://img.shields.io/github/issues/dennisdoomen/pathweaver)](https://github.com/dennisdoomen/pathweaver/issues)
+[![](https://img.shields.io/github/actions/workflow/status/dennisdoomen/Pathy/build.yml?branch=main)](https://github.com/dennisdoomen/Pathy/actions?query=branch%3amain)
+[![Coveralls branch](https://img.shields.io/coverallsCoverage/github/dennisdoomen/Pathy?branch=main)](https://coveralls.io/github/dennisdoomen/Pathy?branch=main)
+[![](https://img.shields.io/github/release/dennisdoomen/Pathy.svg?label=latest%20release&color=007edf)](https://github.com/dennisdoomen/Pathy/releases/latest)
+[![](https://img.shields.io/nuget/dt/Pathy.svg?label=downloads&color=007edf&logo=nuget)](https://www.nuget.org/packages/Pathy)
+[![](https://img.shields.io/librariesio/dependents/nuget/Pathy.svg?label=dependent%20libraries)](https://libraries.io/nuget/Pathy)
+![GitHub Repo stars](https://img.shields.io/github/stars/dennisdoomen/Pathy?style=flat)
+[![GitHub contributors](https://img.shields.io/github/contributors/dennisdoomen/Pathy)](https://github.com/dennisdoomen/Pathy/graphs/contributors)
+[![GitHub last commit](https://img.shields.io/github/last-commit/dennisdoomen/Pathy)](https://github.com/dennisdoomen/Pathy)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/dennisdoomen/Pathy)](https://github.com/dennisdoomen/Pathy/graphs/commit-activity)
+[![open issues](https://img.shields.io/github/issues/dennisdoomen/Pathy)](https://github.com/dennisdoomen/Pathy/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 ![](https://img.shields.io/badge/release%20strategy-githubflow-orange.svg)
 ![Static Badge](https://img.shields.io/badge/4.7%2C_6.0%2C_netstandard2.0%2C_netstandard2.1-dummy?label=dotnet&color=%235027d5)
@@ -40,7 +40,7 @@
 ### What's this?
 
 Add stuff like:
-* PathWeaver offers
+* Pathy offers
 * what .NET, C# other versions of dependencies it supports
 
 ### What's so special about that?
@@ -64,9 +64,9 @@ Some example code showing your library
 
 ## Download
 
-This library is available as [a NuGet package](https://www.nuget.org/packages/pathweaver) on https://nuget.org. To install it, use the following command-line:
+This library is available as [a NuGet package](https://www.nuget.org/packages/Pathy) on https://nuget.org. To install it, use the following command-line:
 
-  `dotnet add package pathweaver`
+  `dotnet add package Pathy`
 
 ## Building
 
@@ -90,8 +90,8 @@ Your contributions are always welcome! Please have a look at the [contribution g
 
 Previous contributors include:
 
-<a href="https://github.com/dennisdoomen/pathweaver/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=dennisdoomen/pathweaver" alt="contrib.rocks image" />
+<a href="https://github.com/dennisdoomen/Pathy/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dennisdoomen/Pathy" alt="contrib.rocks image" />
 </a>
 
 (Made with [contrib.rocks](https://contrib.rocks))

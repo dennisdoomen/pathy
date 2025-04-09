@@ -99,7 +99,7 @@ class Build : NukeBuild
         .Executes(() =>
         {
             TestResultsDirectory.CreateOrCleanDirectory();
-            var project = Solution.GetProject("PathWeaver.Specs");
+            var project = Solution.GetProject("Pathy.Specs");
 
             DotNetTest(s => s
                 // We run tests in debug mode so that Fluent Assertions can show the names of variables
@@ -120,7 +120,7 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
-            var project = Solution.GetProject("PathWeaver.ApiVerificationTests");
+            var project = Solution.GetProject("Pathy.ApiVerificationTests");
 
             DotNetTest(s => s
                 .SetConfiguration(Configuration == Configuration.Debug ? "Debug" : "Release")
@@ -155,7 +155,7 @@ class Build : NukeBuild
                     .AddPair("Packed version", semVer)));
 
             DotNetPack(s => s
-                .SetProject(Solution.GetProject("PathWeaver"))
+                .SetProject(Solution.GetProject("Pathy"))
                 .SetOutputDirectory(ArtifactsDirectory)
                 .SetConfiguration(Configuration == Configuration.Debug ? "Debug" : "Release")
                 .EnableNoBuild()

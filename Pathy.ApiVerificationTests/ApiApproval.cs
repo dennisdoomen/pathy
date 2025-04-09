@@ -11,7 +11,7 @@ using VerifyTests.DiffPlex;
 using VerifyXunit;
 using Xunit;
 
-namespace PathWeaver.ApiVerificationTests;
+namespace Pathy.ApiVerificationTests;
 
 public class ApiApproval
 {
@@ -22,7 +22,7 @@ public class ApiApproval
     public Task ApproveApi(string framework)
     {
         var configuration = typeof(ApiApproval).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>()!.Configuration;
-        var assemblyFile = CombinedPaths("PathWeaver", "bin", configuration, framework, "PathWeaver.dll");
+        var assemblyFile = CombinedPaths("Pathy", "bin", configuration, framework, "Pathy.dll");
         var assembly = Assembly.LoadFile(assemblyFile);
         var publicApi = assembly.GeneratePublicApi(options: null);
 
@@ -38,7 +38,7 @@ public class ApiApproval
     {
         public TargetFrameworksTheoryData()
         {
-            var csproj = CombinedPaths("PathWeaver", "PathWeaver.csproj");
+            var csproj = CombinedPaths("Pathy", "Pathy.csproj");
             var project = XDocument.Load(csproj);
             var targetFrameworks = project.XPathSelectElement("/Project/PropertyGroup/TargetFrameworks");
             AddRange(targetFrameworks!.Value.Split(';'));
