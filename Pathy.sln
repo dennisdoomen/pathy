@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pathy.Specs", "Pathy.Specs\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pathy.ApiVerificationTests", "Pathy.ApiVerificationTests\Pathy.ApiVerificationTests.csproj", "{2556E20E-7408-4E55-BFD1-344535F8D940}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pathy.Globbing", "Pathy.Globbing\Pathy.Globbing.csproj", "{A8DD8F39-1E7A-4EFD-A479-D04F636BD3AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,5 +41,9 @@ Global
 		{2556E20E-7408-4E55-BFD1-344535F8D940}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2556E20E-7408-4E55-BFD1-344535F8D940}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2556E20E-7408-4E55-BFD1-344535F8D940}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8DD8F39-1E7A-4EFD-A479-D04F636BD3AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8DD8F39-1E7A-4EFD-A479-D04F636BD3AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8DD8F39-1E7A-4EFD-A479-D04F636BD3AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8DD8F39-1E7A-4EFD-A479-D04F636BD3AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

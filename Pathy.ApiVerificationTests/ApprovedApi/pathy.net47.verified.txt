@@ -1,0 +1,42 @@
+﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Pathy.Specs")]
+namespace Pathy
+{
+    public sealed class ChainablePath
+    {
+        public Pathy.ChainablePath? Directory { get; }
+        public bool DirectoryExists { get; }
+        public string DirectoryName { get; }
+        public bool Exists { get; }
+        public string Extension { get; }
+        public bool FileExists { get; }
+        public bool IsDirectory { get; }
+        public bool IsFile { get; }
+        public bool IsRooted { get; }
+        public string Name { get; }
+        public Pathy.ChainablePath Parent { get; }
+        public Pathy.ChainablePath Root { get; }
+        public static Pathy.ChainablePath Current { get; }
+        public static Pathy.ChainablePath New { get; }
+        public static Pathy.ChainablePath Temp { get; }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+        public System.IO.DirectoryInfo ToDirectoryInfo() { }
+        public System.IO.FileInfo ToFileInfo() { }
+        public override string ToString() { }
+        public static Pathy.ChainablePath From(string path) { }
+        public static string op_Implicit(Pathy.ChainablePath chainablePath) { }
+        public static Pathy.ChainablePath op_Implicit(string path) { }
+        public static Pathy.ChainablePath operator +(Pathy.ChainablePath leftPath, string additionalPath) { }
+        public static Pathy.ChainablePath operator /(Pathy.ChainablePath leftPath, string subPath) { }
+    }
+    public static class ChainablePathExtensions
+    {
+        public static void CreateDirectoryRecursively(this Pathy.ChainablePath path) { }
+        public static void DeleteFileOrDirectory(this Pathy.ChainablePath path) { }
+        public static void MoveFileOrDirectory(this Pathy.ChainablePath sourcePath, Pathy.ChainablePath destinationDirectory, string newName = null) { }
+    }
+    public static class StringExtensions
+    {
+        public static Pathy.ChainablePath ToPath(this string path) { }
+    }
+}

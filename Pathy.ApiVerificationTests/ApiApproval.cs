@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -18,36 +16,45 @@ public class ApiApproval
     static ApiApproval() => VerifyDiffPlex.Initialize(OutputType.Minimal);
 
     [Theory]
-    [ClassData(typeof(TargetFrameworksTheoryData))]
-    public Task ApproveApi(string framework)
+    [InlineData("netstandard2.0")]
+    [InlineData("netstandard2.1")]
+    [InlineData("net47")]
+    [InlineData("net8.0")]
+    public async Task ApprovePathyApi(string targetFramework)
     {
         var configuration = typeof(ApiApproval).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>()!.Configuration;
-        var assemblyFile = CombinedPaths("Pathy", "bin", configuration, framework, "Pathy.dll");
+        var assemblyFile = GetSolutionDirectory() / "Pathy" / "bin" / configuration / targetFramework / "Pathy.dll";
         var assembly = Assembly.LoadFile(assemblyFile);
         var publicApi = assembly.GeneratePublicApi(options: null);
 
-        return Verifier
+        await Verifier
             .Verify(publicApi)
             .ScrubLinesContaining("FrameworkDisplayName")
             .UseDirectory("ApprovedApi")
-            .UseFileName(framework)
+            .UseFileName("pathy." + targetFramework)
             .DisableDiff();
     }
 
-    private class TargetFrameworksTheoryData : TheoryData<string>
+    [Theory]
+    [InlineData("netstandard2.0")]
+    [InlineData("netstandard2.1")]
+    [InlineData("net47")]
+    [InlineData("net8.0")]
+    public async Task ApprovePathyGlobbingApi(string targetFramework)
     {
-        public TargetFrameworksTheoryData()
-        {
-            var csproj = CombinedPaths("Pathy", "Pathy.csproj");
-            var project = XDocument.Load(csproj);
-            var targetFrameworks = project.XPathSelectElement("/Project/PropertyGroup/TargetFrameworks");
-            AddRange(targetFrameworks!.Value.Split(';'));
-        }
+        var configuration = typeof(ApiApproval).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>()!.Configuration;
+        var assemblyFile = GetSolutionDirectory() / "Pathy.Globbing" / "bin" / configuration / targetFramework / "Pathy.Globbing.dll";
+        var assembly = Assembly.LoadFile(assemblyFile);
+        var publicApi = assembly.GeneratePublicApi(options: null);
+
+        await Verifier
+            .Verify(publicApi)
+            .ScrubLinesContaining("FrameworkDisplayName")
+            .UseDirectory("ApprovedApi")
+            .UseFileName("pathy.globbing." + targetFramework)
+            .DisableDiff();
     }
 
-    private static string CombinedPaths(params string[] paths) =>
-        Path.GetFullPath(Path.Combine(paths.Prepend(GetSolutionDirectory()).ToArray()));
-
-    private static string GetSolutionDirectory([CallerFilePath] string path = "") =>
-        Path.Combine(Path.GetDirectoryName(path)!, "..");
+    private static ChainablePath GetSolutionDirectory([CallerFilePath] string path = "") =>
+        ChainablePath.From(path).Directory / "..";
 }
