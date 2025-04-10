@@ -13,20 +13,63 @@ public class ChainablePath
 {
     private readonly string path;
 
-    public ChainablePath(string path)
+    private ChainablePath(string path)
     {
-        if (!Path.IsPathRooted(path))
-        {
-            throw new ArgumentException($"Path \"{path}\" is not an absolute path", nameof(path));
-        }
-
         this.path = path;
     }
 
     public static ChainablePath From(string path)
     {
-        return new ChainablePath(path);
+        if (Path.IsPathRooted(path))
+        {
+            return new ChainablePath(Path.GetFullPath(path));
+        }
+        else
+        {
+            return new ChainablePath(path);
+        }
+    }
+
+    public static ChainablePath operator /(ChainablePath left, string right)
+    {
+        return From(Path.Combine(left.path, right));
     }
 
     public string DirectoryName => Path.GetDirectoryName(path);
+    public bool IsRooted => Path.IsPathRooted(path);
+    public string Name => Path.GetFileName(path);
+    public bool FileExists => File.Exists(path);
+    public bool DirectoryExists => Directory.Exists(path);
+
+    public ChainablePath Parent => From(DirectoryName);
+
+    public string Extension
+    {
+        get
+        {
+            return Path.GetExtension(path);
+        }
+    }
+
+    public static ChainablePath Temp => ChainablePath.From(Path.GetTempPath());
+
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+    public ChainablePath AsRelativeTo(ChainablePath basePath)
+    {
+        return Path.GetRelativePath(basePath.ToString()!, path).ToPath();
+    }
+#endif
+
+    public override string ToString()
+    {
+        return path;
+    }
+}
+
+public static class StringExtensions
+{
+    public static ChainablePath ToPath(this string path)
+    {
+        return ChainablePath.From(path);
+    }
 }
