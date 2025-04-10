@@ -1,8 +1,10 @@
-﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("PathWeaver.Specs")]
-namespace PathWeaver
+﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Pathy.Specs")]
+namespace Pathy
 {
-    public class PathWeaver
+    public class ChainablePath
     {
-        public PathWeaver() { }
+        public ChainablePath(string path) { }
+        public string DirectoryName { get; }
+        public static Pathy.ChainablePath From(string path) { }
     }
 }

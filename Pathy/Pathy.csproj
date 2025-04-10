@@ -23,16 +23,16 @@
 
   <ItemGroup Label="Internals visible to">
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>PathWeaver.Specs</_Parameter1>
+      <_Parameter1>Pathy.Specs</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\PathWeaver.xml</DocumentationFile>
+      <DocumentationFile>bin\Debug\Pathy.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\PathWeaver.xml</DocumentationFile>
+      <DocumentationFile>bin\Release\Pathy.xml</DocumentationFile>
     </PropertyGroup>
 
 </Project>
