@@ -7,12 +7,14 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <NuSpecFile>.nuspec</NuSpecFile>
         <NuspecProperties>version=$(Version)</NuspecProperties>
-        <DefineConstants>PATHY_PUBLIC</DefineConstants>
+        <DefineConstants>MYPACKAGE_COMPILE</DefineConstants>
         <NoWarn>1591;1573</NoWarn>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+        <AssemblyName>Pathy.Globbing</AssemblyName>
+        <RootNamespace>Pathy.Globbing</RootNamespace>
     </PropertyGroup>
 
   <ItemGroup Label="Package files">
@@ -27,12 +29,20 @@
     </AssemblyAttribute>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pathy\Pathy.csproj" />
+  </ItemGroup>
+
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\Pathy.xml</DocumentationFile>
+      <DocumentationFile>bin\Debug\Pathy.Globbing.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\Pathy.xml</DocumentationFile>
+      <DocumentationFile>bin\Release\Pathy.Globbing.xml</DocumentationFile>
     </PropertyGroup>
 
 </Project>

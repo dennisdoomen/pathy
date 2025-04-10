@@ -154,15 +154,21 @@ class Build : NukeBuild
                 .WhenNotNull(SemVer, (c, semVer) => c
                     .AddPair("Packed version", semVer)));
 
+            Project[] projects = [
+                Solution.GetProject("Pathy"),
+                Solution.GetProject("Pathy.Globbing")
+            ];
+
             DotNetPack(s => s
-                .SetProject(Solution.GetProject("Pathy"))
-                .SetOutputDirectory(ArtifactsDirectory)
-                .SetConfiguration(Configuration == Configuration.Debug ? "Debug" : "Release")
-                .EnableNoBuild()
-                .EnableNoLogo()
-                .EnableNoRestore()
-                .EnableContinuousIntegrationBuild() // Necessary for deterministic builds
-                .SetVersion(SemVer));
+                .CombineWith(projects, (settings, project) => settings
+                    .SetProject(project)
+                    .SetOutputDirectory(ArtifactsDirectory)
+                    .SetConfiguration(Configuration == Configuration.Debug ? "Debug" : "Release")
+                    .EnableNoBuild()
+                    .EnableNoLogo()
+                    .EnableNoRestore()
+                    .EnableContinuousIntegrationBuild() // Necessary for deterministic builds
+                .SetVersion(SemVer)));
         });
 
     Target Push => _ => _

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <!-- 👇 This is the ID of the package in NuGet -->
+    <id>Pathy.Globbing</id>
+    <version>$version$</version>
+    <!-- 👇 Indicates the package is only used at build time, not deploy time -->
+    <developmentDependency>true</developmentDependency>
+    <authors>Dennis Doomen</authors>
+    <license type="expression">MIT</license>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/dennisdoomen/Pathy</projectUrl>
+    <description>File globbing extensions for Pathy</description>
+    <tags>source directory paths</tags>
+    <dependencies>
+      <dependency id="Pathy" version="$version$"/>
+      <dependency id="Microsoft.Extensions.FileSystemGlobbing" version="8.0.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="*.cs" target="contentFiles/cs/net6.0/Pathy/"/>
+    <file src="*.cs" target="contentFiles/cs/net4.7/Pathy/"/>
+    <file src="*.cs" target="contentFiles/cs/netstandard2.0/Pathy/"/>
+    <file src="*.cs" target="contentFiles/cs/netstandard2.1/Pathy/"/>
+    <!-- 👇 Hide content files from Visual Studio solution explorer  -->
+    <file src="Pathy.Globbing.props" target="build/Pathy.Globbing.props" />
+  </files>
+</package>
