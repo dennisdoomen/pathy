@@ -43,7 +43,7 @@ Pathy is a tiny source-only library that will allow you to build file and direct
 
   `ChainablePath.New() / "c:" / "dir1" / "dir2"`.  
 
-It was heavily inspired by the best build pipeline framework available in the .NET space, [Nuke](https://nuke.build/). Nuke has supported these concepts for many years, but I needed this capability outside build pipelines.  
+It was heavily inspired by the best build pipeline framework available in the .NET space, [Nuke](https://nuke.build/). Nuke has supported these concepts for many years, but I needed this capability outside build pipelines. Lots of kudos to [Matthias Koch](https://www.linkedin.com/in/matthias-koch-jb/) for what I see as a brilliant idea.
 
 It doesn't have any dependencies and runs on .NET 4.7, .NET 8, as well as frameworks supporting .NET Standard 2.0 and 2.1. 
 

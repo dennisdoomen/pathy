@@ -25,8 +25,7 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
-          3.0.x
-          6.0.x
+          8.0.x
 
     - name: Run NUKE
       run: ./build.ps1
