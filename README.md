@@ -10,8 +10,8 @@
 
 [![](https://img.shields.io/github/actions/workflow/status/dennisdoomen/Pathy/build.yml?branch=main)](https://github.com/dennisdoomen/Pathy/actions?query=branch%3amain)
 [![Coverage Status](https://coveralls.io/repos/github/dennisdoomen/pathy/badge.svg?branch=main)](https://coveralls.io/github/dennisdoomen/pathy?branch=main)
-[![](https://img.shields.io/github/release/dennisdoomen/Pathy.svg?label=latest%20release&color=007edf)](https://github.com/dennisdoomen/Pathy/releases/latest)
-[![](https://img.shields.io/nuget/dt/Pathy.svg?label=downloads&color=007edf&logo=nuget)](https://www.nuget.org/packages/Pathy)
+[![](https://img.shields.io/github/release/dennisdoomen/Pathy.svg?label=latest%20release&color=007edf)](https://github.com/dennisdoomen/pathy/releases/latest)
+[![](https://img.shields.io/nuget/dt/Pathy.svg?label=downloads&color=007edf&logo=nuget)](https://www.nuget.org/packages/pathy)
 [![](https://img.shields.io/librariesio/dependents/nuget/Pathy.svg?label=dependent%20libraries)](https://libraries.io/nuget/Pathy)
 ![GitHub Repo stars](https://img.shields.io/github/stars/dennisdoomen/Pathy?style=flat)
 [![GitHub contributors](https://img.shields.io/github/contributors/dennisdoomen/Pathy)](https://github.com/dennisdoomen/Pathy/graphs/contributors)
@@ -67,16 +67,74 @@ This library is available as [a NuGet package](https://www.nuget.org/packages/Pa
   `dotnet add package Pathy`
 
 ## How do I use it?
-* Code examples
-* Where to find more examples
+
+### To ChainablePath and back to string
+It all starts with the construction of a `ChainablePath` instance to represent a path to a file or directory. 
+
+There are several ways of doing that.
 
 ```csharp
-Some example code showing your library
+var path = ChainablePath.From("c:") / "my-path" / "to" / "a" /"directory");
+var path = ChainablePath.New() / "c:" / "my-path" / "to" / "a" / "directory";
+var path = "c:/mypath/to/a/directory".ToPath();
+var path = (ChainablePath)"c:/mypath/to/a/directory";
 ```
+
+Additionally, you can use `ChainablePath.Current` to get the current working directory as an instance of `ChainablePath`, and `ChainablePath.Temp` to get that for the user's temporary folder. 
+
+The first thing you'll notice is how the `/` operator is used to chain multiple parts of a path together. This is the primary feature of Pathy. And it doesn't matter if you do that on Linux or Windows. Internally it'll use whatever path separator is suitable. 
+
+You can also use the `+` operator to add some phrase to the path _without_ using a separator. 
+
+```csharp
+var path = ChainablePath.From("c:") / "my-path" / "to" / "a" /"directory");
+
+path = path + "2"
+
+// Returns "c:/my-path/to/a/directory2"
+string result = path.ToString();
+```
+
+To convert an instance of `ChainablePath` back to a `string`, you can either call `ToString()` or cast the instance to a `string`. 
+
+```csharp
+string rawPath = path.ToString();
+string rawPath = (string)path;
+```
+
+### Working with paths
+
+Know that `ChainablePath` overrides `Equals` and `GetHashCode`, so you can always compare two instances as you're used to.
+
+Given an instance of `ChainablePath`, you can get a lot of useful information:
+* `Name` returns the full name, but without the directory, whereas `Extension` gives you the extension _including_ the dot.
+* `Directory`, `Parent` or `DirectoryName` give you the (parent) directory of a file or directory. 
+* To see if a path is absolute, use `IsRooted`
+* Not sure if a path points to an actual file system entry? Use `IsFile`, `IsDirectory` or `Exists`
+* Want to know the delta between two paths? Use `AsRelativeTo`.
+
+And if the built-in functionality really isn't enough, you can always call `ToDirectoryInfo` or `ToFileInfo` to continue with an instance of `DirectoryInfo` and `FileInfo`.
+
+### Globbing
+
+If you add the `Pathy.Globbing` NuGet source-only package as well, you'll get access to the `GlobFiles` method. With that, you can fetch a collection of files like this:
+
+
+```csharp
+ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.json");
+```
+
+### File system operations
+
+Next to that, Pathy also provides a bunch of extension methods to operate on the file-system:
+
+* `CreateDirectoryRecursively`
+* `DeleteFileOrDirectory`
+* `MoveFileOrDirectory`
 
 ## Building
 
-To build this repository locally, you need the following:
+To build this repository locally so you can contribute to it, you need the following:
 * The [.NET SDKs](https://dotnet.microsoft.com/en-us/download/visual-studio-sdks) for .NET 4.7, 8.0.
 * Visual Studio, JetBrains Rider or Visual Studio Code with the C# DevKit
 
