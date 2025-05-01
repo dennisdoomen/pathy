@@ -20,7 +20,7 @@
 [![open issues](https://img.shields.io/github/issues/dennisdoomen/Pathy)](https://github.com/dennisdoomen/Pathy/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 ![](https://img.shields.io/badge/release%20strategy-githubflow-orange.svg)
-![Static Badge](https://img.shields.io/badge/4.7%2C_6.0%2C_netstandard2.0%2C_netstandard2.1-dummy?label=dotnet&color=%235027d5)
+![Static Badge](https://img.shields.io/badge/4.7%2C_8.0%2C_netstandard2.0%2C_netstandard2.1-dummy?label=dotnet&color=%235027d5)
 
 
 
@@ -39,20 +39,32 @@
 
 ### What's this?
 
-Add stuff like:
-* Pathy offers
-* what .NET, C# other versions of dependencies it supports
+Pathy is a tiny source-only library that will allow you to build file and directory paths by chaining together strings like `"c:"`, `"dir1"`, `"dir2"` using 
+
+  `ChainablePath.New() / "c:" / "dir1" / "dir2"`.  
+
+It was heavily inspired by the best build pipeline framework available in the .NET space, [Nuke](https://nuke.build/). Nuke has supported these concepts for many years, but I needed this capability outside build pipelines.  
+
+It doesn't have any dependencies and runs on .NET 4.7, .NET 8, as well as frameworks supporting .NET Standard 2.0 and 2.1. 
 
 ### What's so special about that?
 
-* What makes it different from other libraries?
-* Why did you create it.
-* What problem does it solve?
-* Mention that it is a source-only package, which just adds a C# file and doesn't create binary dependencies
+It makes those chained calls to `Path.Combine` a thing from the past and hides the ugliness of dealing with (trailing) slashes.  
+
+It ships as a source-only package, which means you can use it in your own libraries and projects, without incurring any dependency pain on your consuming projects. 
+
+The core Pathy package does not have any dependencies, and I purposely moved the [globbing](https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing#pattern-formats) functionality into a separate package as it depends on `Microsoft.Extensions.FileSystemGlobbing`.
 
 ### Who created this?
-* Something about you, your company, your team, etc.
-* How to contact you like LinkedIn, Twitter, Bluesky, Mastodon, email, etc.
+My name is Dennis Doomen and I'm a Microsoft MVP and Principal Consultant at [Aviva Solutions](https://avivasolutions.nl/) with 28 years of experience under my belt. As a software architect and/or lead developer, I specialize in designing full-stack enterprise solutions based on .NET as well as providing coaching on all aspects of designing, building, deploying and maintaining software systems. I'm the author of several open-source projects such as [Fluent Assertions](https://www.fluentassertions.com), [Reflectify](https://github.com/dennisdoomen/reflectify), [Liquid Projections](https://www.liquidprojections.net), and I've been maintaining [coding guidelines for C#](https://www.csharpcodingguidelines.com) since 2001.
+
+Contact me through [Email](mailto:dennis.doomen@avivasolutions.nl), [Bluesky](https://bsky.app/profile/dennisdoomen.com), [Twitter/X](https://twitter.com/ddoomen) or [Mastadon](https://mastodon.social/@ddoomen)
+
+## Download
+
+This library is available as [a NuGet package](https://www.nuget.org/packages/Pathy) on https://nuget.org. To install it, use the following command-line:
+
+  `dotnet add package Pathy`
 
 ## How do I use it?
 * Code examples
@@ -62,16 +74,10 @@ Add stuff like:
 Some example code showing your library
 ```
 
-## Download
-
-This library is available as [a NuGet package](https://www.nuget.org/packages/Pathy) on https://nuget.org. To install it, use the following command-line:
-
-  `dotnet add package Pathy`
-
 ## Building
 
 To build this repository locally, you need the following:
-* The [.NET SDKs](https://dotnet.microsoft.com/en-us/download/visual-studio-sdks) for .NET 4.7, 6.0 and 8.0.
+* The [.NET SDKs](https://dotnet.microsoft.com/en-us/download/visual-studio-sdks) for .NET 4.7, 8.0.
 * Visual Studio, JetBrains Rider or Visual Studio Code with the C# DevKit
 
 You can also build, run the unit tests and package the code using the following command-line:
@@ -105,7 +111,6 @@ This library wouldn't have been possible without the following tools, packages a
 * [Nuke](https://nuke.build/) - Smart automation for DevOps teams and CI/CD pipelines by [Matthias Koch](https://github.com/matkoch)
 * [xUnit](https://xunit.net/) - Community-focused unit testing tool for .NET by [Brad Wilson](https://github.com/bradwilson)
 * [Coverlet](https://github.com/coverlet-coverage/coverlet) - Cross platform code coverage for .NET by [Toni Solarin-Sodara](https://github.com/tonerdo)
-* [Polysharp](https://github.com/Sergio0694/PolySharp) - Generated, source-only polyfills for C# language features by [Sergio Pedri](https://github.com/Sergio0694)
 * [GitVersion](https://gitversion.net/) - From git log to SemVer in no time
 * [ReportGenerator](https://reportgenerator.io/) - Converts coverage reports by [Daniel Palme](https://github.com/danielpalme)
 * [StyleCopyAnalyzer](https://github.com/DotNetAnalyzers/StyleCopAnalyzers) - StyleCop rules for .NET
@@ -122,9 +127,12 @@ This library wouldn't have been possible without the following tools, packages a
 
 ## You may also like
 
-* Your blog
-* Your other projects
-* Related projects you think are cool or interesting for the consumers of this project
+* [My Blog](https://www.dennisdoomen.com)
+* [PackageGuard](https://github.com/dennisdoomen/packageguard/) - Get a grip on your open-source packages
+* [Reflectify](https://github.com/dennisdoomen/reflectify) - Reflection extensions without causing dependency pains
+* [.NET Library Package Templates](https://github.com/dennisdoomen/dotnet-package-templates) - "dotnet new" templates for building NuGet-published multi-targeting libraries with all the bells and whistles
+* [FluentAssertions](https://github.com/fluentassertions/fluentassertions) - Extension methods to fluently assert the outcome of .NET tests
+* [C# Coding Guidelines](https://csharpcodingguidelines.com/) - Forkable coding guidelines for all C# versions
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

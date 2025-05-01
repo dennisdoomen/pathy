@@ -23,8 +23,6 @@ Ideally, a bug report should contain the following information:
 * Information on the environment: nuget version, .NET version, etc.
 * Additional information, e.g. is it a regression from previous versions? are there any known workarounds?
 
-When ready to submit a bug report, please use the [Bug Report issue template](https://github.com/your-user-name/my-package/issues/new?labels=&template=01_bug_report.yml).
-
 #### Why are Minimal Reproductions Important?
 
 A reproduction lets maintainers verify the presence of a bug, and diagnose the issue using a debugger. A _minimal_ reproduction is the smallest possible console application demonstrating that bug. Minimal reproductions are generally preferable since they:
