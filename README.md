@@ -9,7 +9,7 @@
 <div align="center">
 
 [![](https://img.shields.io/github/actions/workflow/status/dennisdoomen/Pathy/build.yml?branch=main)](https://github.com/dennisdoomen/Pathy/actions?query=branch%3amain)
-[![Coveralls branch](https://img.shields.io/coverallsCoverage/github/dennisdoomen/Pathy?branch=main)](https://coveralls.io/github/dennisdoomen/Pathy?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/dennisdoomen/pathy/badge.svg?branch=main)](https://coveralls.io/github/dennisdoomen/pathy?branch=main)
 [![](https://img.shields.io/github/release/dennisdoomen/Pathy.svg?label=latest%20release&color=007edf)](https://github.com/dennisdoomen/Pathy/releases/latest)
 [![](https://img.shields.io/nuget/dt/Pathy.svg?label=downloads&color=007edf&logo=nuget)](https://www.nuget.org/packages/Pathy)
 [![](https://img.shields.io/librariesio/dependents/nuget/Pathy.svg?label=dependent%20libraries)](https://libraries.io/nuget/Pathy)
