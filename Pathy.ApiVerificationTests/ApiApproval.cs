@@ -1,11 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using System.Xml.XPath;
 using PublicApiGenerator;
-using VerifyTests;
-using VerifyTests.DiffPlex;
 using VerifyXunit;
 using Xunit;
 
@@ -13,8 +9,6 @@ namespace Pathy.ApiVerificationTests;
 
 public class ApiApproval
 {
-    static ApiApproval() => VerifyDiffPlex.Initialize(OutputType.Minimal);
-
     [Theory]
     [InlineData("netstandard2.0")]
     [InlineData("netstandard2.1")]
@@ -29,8 +23,6 @@ public class ApiApproval
 
         await Verifier
             .Verify(publicApi)
-            .ScrubLinesContaining("FrameworkDisplayName")
-            .UseDirectory("ApprovedApi")
             .UseFileName("pathy." + targetFramework)
             .DisableDiff();
     }
@@ -49,8 +41,6 @@ public class ApiApproval
 
         await Verifier
             .Verify(publicApi)
-            .ScrubLinesContaining("FrameworkDisplayName")
-            .UseDirectory("ApprovedApi")
             .UseFileName("pathy.globbing." + targetFramework)
             .DisableDiff();
     }
