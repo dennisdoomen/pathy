@@ -27,12 +27,4 @@
     </AssemblyAttribute>
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\Pathy.xml</DocumentationFile>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\Pathy.xml</DocumentationFile>
-    </PropertyGroup>
-
 </Project>
