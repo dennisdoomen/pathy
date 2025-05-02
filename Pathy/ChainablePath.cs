@@ -52,7 +52,7 @@ internal sealed class ChainablePath
         {
             path = NormalizeSlashes(path);
 
-            if (path.EndsWith(Path.VolumeSeparatorChar.ToString(), StringComparison.Ordinal))
+            if (path[path.Length - 1] == Path.VolumeSeparatorChar)
             {
                 path += Path.DirectorySeparatorChar;
             }
