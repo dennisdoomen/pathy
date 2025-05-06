@@ -1,9 +1,9 @@
 ﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Pathy.Specs")]
 namespace Pathy
 {
-    public sealed class ChainablePath
+    public readonly struct ChainablePath : System.IEquatable<Pathy.ChainablePath>
     {
-        public Pathy.ChainablePath? Directory { get; }
+        public Pathy.ChainablePath Directory { get; }
         public bool DirectoryExists { get; }
         public string DirectoryName { get; }
         public bool Exists { get; }
@@ -19,8 +19,6 @@ namespace Pathy
         public static Pathy.ChainablePath New { get; }
         public static Pathy.ChainablePath Temp { get; }
         public Pathy.ChainablePath AsRelativeTo(Pathy.ChainablePath basePath) { }
-        public override bool Equals(object obj) { }
-        public override int GetHashCode() { }
         public System.IO.DirectoryInfo ToDirectoryInfo() { }
         public System.IO.FileInfo ToFileInfo() { }
         public override string ToString() { }
