@@ -392,7 +392,7 @@ public class ChainablePathSpecs
         files.Should().BeEquivalentTo([
             temp / "file.txt",
             temp / "file2.txt"
-        ]);
+        ], options => options.ComparingRecordsByValue());
     }
 
     [Fact]
