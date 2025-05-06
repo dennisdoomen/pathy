@@ -12,9 +12,9 @@ namespace Pathy;
 /// the <c>/</c> operator
 /// </summary>
 #if PATHY_PUBLIC
-public sealed class ChainablePath
+public readonly record struct ChainablePath
 #else
-internal sealed class ChainablePath
+internal readonly record struct ChainablePath
 #endif
 {
     private readonly string path;
@@ -27,7 +27,7 @@ internal sealed class ChainablePath
     /// <summary>
     /// Gets a default, empty <see cref="ChainablePath"/> instance.
     /// </summary>
-    public static ChainablePath New { get; } = new(string.Empty);
+    public static ChainablePath New => default;
 
     /// <summary>
     /// Creates a new instance of <see cref="ChainablePath"/> representing the specified path.
@@ -131,7 +131,7 @@ internal sealed class ChainablePath
     /// Or, if the current path represents a directory, gets the parent directory.
     /// Returns <c>null</c> if the path represents the root of a file system.
     /// </summary>
-    public ChainablePath? Directory => DirectoryName is not null ? From(DirectoryName) : null;
+    public ChainablePath Directory => DirectoryName is not null ? From(DirectoryName) : default;
 
     /// <summary>
     /// If the current path represents a file, gets the directory of that file.
@@ -273,18 +273,6 @@ internal sealed class ChainablePath
     {
         return new FileInfo(ToString());
     }
-
-    /// <summary>
-    /// Determines whether the specified object is equal to the current <see cref="ChainablePath"/> instance.
-    /// </summary>
-    /// <returns>
-    /// <c>true</c> if the specified object is a <see cref="ChainablePath"/> and its string representation
-    /// is equal to that of the current instance, ignoring case; otherwise, <c>false</c>.
-    /// </returns>
-    public override bool Equals(object obj) =>
-        obj is ChainablePath other && string.Equals(ToString(), other.ToString(), StringComparison.OrdinalIgnoreCase);
-
-    public override int GetHashCode() => ToString().GetHashCode();
 }
 
 #if PATHY_PUBLIC
