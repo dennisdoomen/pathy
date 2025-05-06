@@ -87,7 +87,7 @@ The first thing you'll notice is how the `/` operator is used to chain multiple 
 You can also use the `+` operator to add some phrase to the path _without_ using a separator. 
 
 ```csharp
-var path = ChainablePath.From("c:") / "my-path" / "to" / "a" /"directory");
+var path = ChainablePath.From("c:") / "my-path" / "to" / "a" / "directory";
 
 path = path + "2"
 
