@@ -47,7 +47,7 @@ internal static class ChainablePathExtensions
     public static void MoveFileOrDirectory(this ChainablePath sourcePath, ChainablePath destinationDirectory,
         string newName = null)
     {
-        if (newName is not null && newName.Length == 0)
+        if (newName is { Length: 0 })
         {
             throw new ArgumentException("Renaming requires a valid name", nameof(newName));
         }
