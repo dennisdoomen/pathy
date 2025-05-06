@@ -1,7 +1,7 @@
 ﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Pathy.Specs")]
 namespace Pathy
 {
-    public sealed class ChainablePath
+    public readonly struct ChainablePath
     {
         public Pathy.ChainablePath? Directory { get; }
         public bool DirectoryExists { get; }
@@ -29,6 +29,7 @@ namespace Pathy
         public static Pathy.ChainablePath op_Implicit(string path) { }
         public static Pathy.ChainablePath operator +(Pathy.ChainablePath leftPath, string additionalPath) { }
         public static Pathy.ChainablePath operator /(Pathy.ChainablePath leftPath, string subPath) { }
+        public static Pathy.ChainablePath operator /(Pathy.ChainablePath? leftPath, string subPath) { }
     }
     public static class ChainablePathExtensions
     {

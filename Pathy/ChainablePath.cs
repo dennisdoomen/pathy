@@ -12,9 +12,9 @@ namespace Pathy;
 /// the <c>/</c> operator
 /// </summary>
 #if PATHY_PUBLIC
-public sealed class ChainablePath
+public readonly struct ChainablePath
 #else
-internal sealed class ChainablePath
+internal readonly struct ChainablePath
 #endif
 {
     private readonly string path;
@@ -27,7 +27,7 @@ internal sealed class ChainablePath
     /// <summary>
     /// Gets a default, empty <see cref="ChainablePath"/> instance.
     /// </summary>
-    public static ChainablePath New { get; } = new(string.Empty);
+    public static ChainablePath New => new(string.Empty);
 
     /// <summary>
     /// Creates a new instance of <see cref="ChainablePath"/> representing the specified path.
@@ -102,6 +102,35 @@ internal sealed class ChainablePath
     public static ChainablePath operator /(ChainablePath leftPath, string subPath)
     {
         return From(Path.Combine(leftPath.path, subPath));
+    }
+
+    /// <summary>
+    /// Combines a <see cref="ChainablePath"/> instance with a string representing a sub-path while
+    /// handling the path separators suitable for the specific operating system.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var combinedPath = ChainablePath.From("C:/BasePath") / "SubPath" / "File.txt";
+    /// </code>
+    /// </example>
+    /// <remarks>
+    /// You don't need to add any slashes before the sub-path. The operator will handle it for you.
+    /// </remarks>
+    /// <param name="leftPath">
+    /// The base <see cref="ChainablePath"/> to which the <paramref name="subPath"/> will be appended.
+    /// </param>
+    /// <param name="subPath">
+    /// The string representation of the relative or additional path to combine with <paramref name="leftPath"/>.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="ChainablePath"/> instance representing the combined path.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if either <paramref name="leftPath"/> or <paramref name="subPath"/> is null.
+    /// </exception>
+    public static ChainablePath operator /(ChainablePath? leftPath, string subPath)
+    {
+        return From(Path.Combine(leftPath.GetValueOrDefault(New), subPath));
     }
 
     /// <summary>
