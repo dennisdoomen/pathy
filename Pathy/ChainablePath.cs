@@ -319,7 +319,7 @@ internal readonly record struct ChainablePath
 #if PATHY_PUBLIC
 public static class StringExtensions
 #else
-internal static sealed class StringExtensions
+internal static class StringExtensions
 #endif
 {
     /// <summary>
