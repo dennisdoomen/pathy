@@ -3,7 +3,7 @@ namespace Pathy
 {
     public readonly struct ChainablePath : System.IEquatable<Pathy.ChainablePath>
     {
-        public Pathy.ChainablePath? Directory { get; }
+        public Pathy.ChainablePath Directory { get; }
         public bool DirectoryExists { get; }
         public string DirectoryName { get; }
         public bool Exists { get; }
@@ -16,6 +16,7 @@ namespace Pathy
         public Pathy.ChainablePath Parent { get; }
         public Pathy.ChainablePath Root { get; }
         public static Pathy.ChainablePath Current { get; }
+        public static Pathy.ChainablePath Empty { get; }
         public static Pathy.ChainablePath New { get; }
         public static Pathy.ChainablePath Temp { get; }
         public System.IO.DirectoryInfo ToDirectoryInfo() { }

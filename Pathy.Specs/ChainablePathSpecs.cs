@@ -13,7 +13,7 @@ public class ChainablePathSpecs
 
     public ChainablePathSpecs()
     {
-        testFolder =  ChainablePath.Temp / nameof(ChainablePathSpecs);
+        testFolder =  ChainablePath.Temp / nameof(ChainablePathSpecs) / Environment.Version.ToString();
         testFolder.DeleteFileOrDirectory();
         testFolder.CreateDirectoryRecursively();
     }
@@ -310,7 +310,8 @@ public class ChainablePathSpecs
         var path = ChainablePath.From("C://");
 
         // Assert
-        path.Directory.Should().BeNull();
+        path.Directory.Should().Be(ChainablePath.Empty);
+        path.Directory.ToString().Should().BeEmpty();
     }
 
     [Fact]
