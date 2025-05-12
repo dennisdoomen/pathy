@@ -17,12 +17,17 @@ public readonly record struct ChainablePath
 internal readonly record struct ChainablePath
 #endif
 {
-    private readonly string path;
+    private readonly string path = string.Empty;
 
     private ChainablePath(string path)
     {
         this.path = path;
     }
+
+    /// <summary>
+    /// Represents an empty <see cref="ChainablePath"/> instance.
+    /// </summary>
+    public static ChainablePath Empty { get; } = new(string.Empty);
 
     /// <summary>
     /// Gets a default, empty <see cref="ChainablePath"/> instance.
@@ -158,39 +163,39 @@ internal readonly record struct ChainablePath
     /// <summary>
     /// If the current path represents a file, gets the directory of that file.
     /// Or, if the current path represents a directory, gets the parent directory.
-    /// Returns <c>null</c> if the path represents the root of a file system.
+    /// Returns <see cref="Empty"/> if the path represents the root of a file system.
     /// </summary>
-    public ChainablePath? Directory
+    public ChainablePath Directory
     {
         get
         {
             string directory = DirectoryName;
-            if (directory is not null)
+            if (directory.Length > 0)
             {
                 return From(directory);
             }
 
-            return null;
+            return Empty;
         }
     }
 
     /// <summary>
     /// If the current path represents a file, gets the directory of that file.
     /// Or, if the current path represents a directory, gets the parent directory.
-    /// Returns <c>null</c> if the path represents the root of a file system.
+    /// Returns <see cref="Empty"/> if the path represents the root of a file system.
     /// </summary>
     public ChainablePath Parent => From(DirectoryName);
 
     /// <summary>
     /// If the current path represents a file, gets the directory of that file.
     /// Or, if the current path represents a directory, gets the parent directory.
-    /// Returns <c>null</c> if the path represents the root of a file system.
+    /// Returns an empty string if the path represents the root of a file system.
     /// </summary>
     public string DirectoryName
     {
         get
         {
-            return Path.GetDirectoryName(path.TrimEnd(Path.DirectorySeparatorChar));
+            return Path.GetDirectoryName(path.TrimEnd(Path.DirectorySeparatorChar)) ?? "";
         }
     }
 
