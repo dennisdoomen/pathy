@@ -16,12 +16,14 @@
       <dependency id="Pathy" version="$version$"/>
       <dependency id="Microsoft.Extensions.FileSystemGlobbing" version="8.0.0" />
     </dependencies>
+    <icon>nuget.png</icon>
   </metadata>
   <files>
     <file src="*.cs" target="contentFiles/cs/net6.0/Pathy/"/>
     <file src="*.cs" target="contentFiles/cs/net4.7/Pathy/"/>
     <file src="*.cs" target="contentFiles/cs/netstandard2.0/Pathy/"/>
     <file src="*.cs" target="contentFiles/cs/netstandard2.1/Pathy/"/>
+    <file src="../nuget.png" target=""/>
     <!-- 👇 Hide content files from Visual Studio solution explorer  -->
     <file src="Pathy.Globbing.props" target="build/Pathy.Globbing.props" />
   </files>
