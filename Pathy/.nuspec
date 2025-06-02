@@ -12,12 +12,14 @@
     <projectUrl>https://github.com/dennisdoomen/Pathy</projectUrl>
     <description>Fluently building and using file and directory paths without binary dependencies</description>
     <tags>source directory paths</tags>
+    <icon>nuget.png</icon>
   </metadata>
   <files>
     <file src="*.cs" target="contentFiles/cs/net6.0/Pathy/"/>
     <file src="*.cs" target="contentFiles/cs/net4.7/Pathy/"/>
     <file src="*.cs" target="contentFiles/cs/netstandard2.0/Pathy/"/>
     <file src="*.cs" target="contentFiles/cs/netstandard2.1/Pathy/"/>
+    <file src="../nuget.png" target=""/>
     <!-- 👇 Hide content files from Visual Studio solution explorer  -->
     <file src="Pathy.props" target="build/Pathy.props" />
   </files>

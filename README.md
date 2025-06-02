@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  Pathy
+  <img src="./logo.png" style="width:300px" alt="Pathy"/> 
   <br>
 </h1>
 
