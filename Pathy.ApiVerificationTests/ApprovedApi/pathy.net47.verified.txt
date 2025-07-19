@@ -19,6 +19,7 @@ namespace Pathy
         public static Pathy.ChainablePath Empty { get; }
         public static Pathy.ChainablePath New { get; }
         public static Pathy.ChainablePath Temp { get; }
+        public bool HasExtension(string extension) { }
         public System.IO.DirectoryInfo ToDirectoryInfo() { }
         public System.IO.FileInfo ToFileInfo() { }
         public override string ToString() { }

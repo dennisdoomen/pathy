@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <img src="./logo.png" style="width:300px" alt="Pathy"/> 
+  <img src="./logo.png" style="width:300px" alt="Pathy"/>
   <br>
 </h1>
 
@@ -39,19 +39,19 @@
 
 ### What's this?
 
-Pathy is a tiny source-only library that will allow you to build file and directory paths by chaining together strings like `"c:"`, `"dir1"`, `"dir2"` using 
+Pathy is a tiny source-only library that will allow you to build file and directory paths by chaining together strings like `"c:"`, `"dir1"`, `"dir2"` using
 
-  `ChainablePath.New() / "c:" / "dir1" / "dir2"`.  
+  `ChainablePath.New() / "c:" / "dir1" / "dir2"`.
 
 It was heavily inspired by the best build pipeline framework available in the .NET space, [Nuke](https://nuke.build/). Nuke has supported these concepts for many years, but I needed this capability outside build pipelines. Lots of kudos to [Matthias Koch](https://www.linkedin.com/in/matthias-koch-jb/) for what I see as a brilliant idea.
 
-It doesn't have any dependencies and runs on .NET 4.7, .NET 8, as well as frameworks supporting .NET Standard 2.0 and 2.1. 
+It doesn't have any dependencies and runs on .NET 4.7, .NET 8, as well as frameworks supporting .NET Standard 2.0 and 2.1.
 
 ### What's so special about that?
 
-It makes those chained calls to `Path.Combine` a thing from the past and hides the ugliness of dealing with (trailing) slashes.  
+It makes those chained calls to `Path.Combine` a thing from the past and hides the ugliness of dealing with (trailing) slashes.
 
-It ships as a source-only package, which means you can use it in your own libraries and projects, without incurring any dependency pain on your consuming projects. 
+It ships as a source-only package, which means you can use it in your own libraries and projects, without incurring any dependency pain on your consuming projects.
 
 The core Pathy package does not have any dependencies, and I purposely moved the [globbing](https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing#pattern-formats) functionality into a separate package as it depends on `Microsoft.Extensions.FileSystemGlobbing`.
 
@@ -69,7 +69,7 @@ This library is available as [a NuGet package](https://www.nuget.org/packages/Pa
 ## How do I use it?
 
 ### To ChainablePath and back to string
-It all starts with the construction of a `ChainablePath` instance to represent a path to a file or directory. 
+It all starts with the construction of a `ChainablePath` instance to represent a path to a file or directory.
 
 There are several ways of doing that.
 
@@ -80,11 +80,11 @@ var path = "c:/mypath/to/a/directory".ToPath();
 var path = (ChainablePath)"c:/mypath/to/a/directory";
 ```
 
-Additionally, you can use `ChainablePath.Current` to get the current working directory as an instance of `ChainablePath`, and `ChainablePath.Temp` to get that for the user's temporary folder. 
+Additionally, you can use `ChainablePath.Current` to get the current working directory as an instance of `ChainablePath`, and `ChainablePath.Temp` to get that for the user's temporary folder.
 
-The first thing you'll notice is how the `/` operator is used to chain multiple parts of a path together. This is the primary feature of Pathy. And it doesn't matter if you do that on Linux or Windows. Internally it'll use whatever path separator is suitable. 
+The first thing you'll notice is how the `/` operator is used to chain multiple parts of a path together. This is the primary feature of Pathy. And it doesn't matter if you do that on Linux or Windows. Internally it'll use whatever path separator is suitable.
 
-You can also use the `+` operator to add some phrase to the path _without_ using a separator. 
+You can also use the `+` operator to add some phrase to the path _without_ using a separator.
 
 ```csharp
 var path = ChainablePath.From("c:") / "my-path" / "to" / "a" / "directory";
@@ -95,7 +95,7 @@ path = path + "2"
 string result = path.ToString();
 ```
 
-To convert an instance of `ChainablePath` back to a `string`, you can either call `ToString()` or cast the instance to a `string`. 
+To convert an instance of `ChainablePath` back to a `string`, you can either call `ToString()` or cast the instance to a `string`.
 
 ```csharp
 string rawPath = path.ToString();
@@ -108,10 +108,11 @@ Know that `ChainablePath` overrides `Equals` and `GetHashCode`, so you can alway
 
 Given an instance of `ChainablePath`, you can get a lot of useful information:
 * `Name` returns the full name, but without the directory, whereas `Extension` gives you the extension _including_ the dot.
-* `Directory`, `Parent` or `DirectoryName` give you the (parent) directory of a file or directory. 
+* `Directory`, `Parent` or `DirectoryName` give you the (parent) directory of a file or directory.
 * To see if a path is absolute, use `IsRooted`
 * Not sure if a path points to an actual file system entry? Use `IsFile`, `IsDirectory` or `Exists`
 * Want to know the delta between two paths? Use `AsRelativeTo`.
+* To determine if a file has a case-insensitive extension, use `HasExtension(".txt")` or `HasExtension("txt")`.
 
 And if the built-in functionality really isn't enough, you can always call `ToDirectoryInfo` or `ToFileInfo` to continue with an instance of `DirectoryInfo` and `FileInfo`.
 

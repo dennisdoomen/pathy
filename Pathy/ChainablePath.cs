@@ -319,6 +319,28 @@ internal readonly record struct ChainablePath
     {
         return new FileInfo(ToString());
     }
+
+    /// <summary>
+    /// Determines if the current path has the specified file extension.
+    /// </summary>
+    /// <param name="extension">
+    /// The file extension to check for, with or without the leading period (e.g., ".txt").
+    /// </param>
+    public bool HasExtension(string extension)
+    {
+        if (string.IsNullOrEmpty(extension))
+        {
+            throw new ArgumentException("Extension cannot be null or empty", nameof(extension));
+        }
+
+        // Ensure the extension starts with a dot
+        if (!extension.StartsWith(".", StringComparison.InvariantCulture))
+        {
+            extension = '.' + extension;
+        }
+
+        return string.Equals(Extension, extension, StringComparison.OrdinalIgnoreCase);
+    }
 }
 
 #if PATHY_PUBLIC

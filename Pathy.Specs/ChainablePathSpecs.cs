@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using Xunit;
 
@@ -346,6 +347,35 @@ public class ChainablePathSpecs
         // Assert
         path.Name.Should().Be("SomeFile.txt");
         path.Extension.Should().Be(".txt");
+    }
+
+    [Theory]
+    [InlineData(".txt", true)]
+    [InlineData(".TXT", true)]
+    [InlineData("TXT", true)]
+    [InlineData("DOC", false)]
+    public void Can_check_for_an_extension(string extension, bool shouldMatch)
+    {
+        // Act
+        var path = ChainablePath.Temp / "SomeFile.txt";
+
+        // Assert
+        path.HasExtension(extension).Should().Be(shouldMatch);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void Checking_for_an_extension_requires_a_valid_extension(string extension)
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "SomeFile.txt";
+
+        // Act
+        Action act = () => path.HasExtension(extension);
+
+        // Assert
+        act.Should().Throw<ArgumentException>("*null*empty*");
     }
 
 #if NET6_0_OR_GREATER
