@@ -341,6 +341,28 @@ internal readonly record struct ChainablePath
 
         return string.Equals(Extension, extension, StringComparison.OrdinalIgnoreCase);
     }
+
+    /// <summary>
+    /// Converts the current <see cref="ChainablePath"/> to an absolute path using the current working directory.
+    /// </summary>
+    public ChainablePath ToAbsolute()
+    {
+        return Path.GetFullPath(this);
+    }
+
+    /// <summary>
+    /// Converts the current <see cref="ChainablePath"/> instance to an absolute path, using the specified parent
+    /// path as the base.
+    /// </summary>
+    public object ToAbsolute(ChainablePath parentPath)
+    {
+        if (!parentPath.IsRooted)
+        {
+            throw new ArgumentException("Parent path must be an absolute path", nameof(parentPath));
+        }
+
+        return From(Path.Combine(parentPath.ToString(), this.ToString()));
+    }
 }
 
 #if PATHY_PUBLIC

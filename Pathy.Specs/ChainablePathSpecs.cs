@@ -117,6 +117,47 @@ public class ChainablePathSpecs
     }
 
     [Fact]
+    public void Can_convert_the_relative_path_to_an_absolute_path_using_the_current_working_directory()
+    {
+        // Arrange
+        var path = ChainablePath.From("temp/somefile.txt");
+
+        // Act
+        var absolutePath = path.ToAbsolute();
+
+        // Assert
+        absolutePath.ToString().Should().Be(Path.Combine(Environment.CurrentDirectory, "temp", "somefile.txt"));
+    }
+
+    [Fact]
+    public void Can_combine_a_relative_path_using_a_specific_absolute_path()
+    {
+        // Arrange
+        var path = ChainablePath.From("temp/somefile.txt");
+
+        // Act
+        var absolutePath = path.ToAbsolute(ChainablePath.Temp);
+
+        // Assert
+        absolutePath.ToString().Should().Be(Path.Combine(Path.GetTempPath(), "temp", "somefile.txt"));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void The_absolute_path_must_be_valid(string absolutePath)
+    {
+        // Arrange
+        var path = ChainablePath.From("temp/somefile.txt");
+
+        // Act
+        Action act = () => path.ToAbsolute(absolutePath);
+
+        // Assert
+        act.Should().Throw<ArgumentException>("*absolutePath*");
+    }
+
+    [Fact]
     public void Can_start_with_an_empty_path()
     {
         // Act

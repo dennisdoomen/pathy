@@ -21,6 +21,8 @@ namespace Pathy
         public static Pathy.ChainablePath Temp { get; }
         public Pathy.ChainablePath AsRelativeTo(Pathy.ChainablePath basePath) { }
         public bool HasExtension(string extension) { }
+        public Pathy.ChainablePath ToAbsolute() { }
+        public object ToAbsolute(Pathy.ChainablePath parentPath) { }
         public System.IO.DirectoryInfo ToDirectoryInfo() { }
         public System.IO.FileInfo ToFileInfo() { }
         public override string ToString() { }
