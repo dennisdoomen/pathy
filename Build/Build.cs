@@ -36,6 +36,10 @@ class Build : NukeBuild
     [Secret]
     readonly string NuGetApiKey;
 
+    [Parameter("The key to use for scanning packages on GitHub")]
+    [Secret]
+    readonly string GitHubApiKey;
+
     [Solution]
     readonly Solution Solution;
 
@@ -47,6 +51,9 @@ class Build : NukeBuild
     AbsolutePath TestResultsDirectory => RootDirectory / "TestResults";
 
     string SemVer;
+
+    [NuGetPackage("PackageGuard", "PackageGuard.dll")]
+    Tool PackageGuard;
 
     Target CalculateNugetVersion => _ => _
         .Executes(() =>
@@ -144,10 +151,19 @@ class Build : NukeBuild
             Information($"Code coverage report: \x1b]8;;file://{link.Replace('\\', '/')}\x1b\\{link}\x1b]8;;\x1b\\");
         });
 
+    Target ScanPackages => _ => _
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
+            Environment.SetEnvironmentVariable("GITHUB_API_KEY", GitHubApiKey);
+            PackageGuard($"--config-path={RootDirectory / ".packageguard" / "config.json"} --use-caching {RootDirectory}");
+        });
+
     Target Pack => _ => _
         .DependsOn(CalculateNugetVersion)
         .DependsOn(ApiChecks)
         .DependsOn(CodeCoverage)
+        .DependsOn(ScanPackages)
         .Executes(() =>
         {
             ReportSummary(s => s
