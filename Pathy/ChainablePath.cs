@@ -2,6 +2,9 @@
 
 using System;
 using System.IO;
+using System.Linq;
+
+// ReSharper disable UseIndexFromEndExpression
 
 #pragma warning disable
 
@@ -73,6 +76,69 @@ internal readonly record struct ChainablePath
         {
             throw new ArgumentException($"Path {path} is not valid", nameof(path));
         }
+    }
+
+    /// <summary>
+    /// Creates a new instance of <see cref="ChainablePath"/> representing the first existing path from the specified list of paths.
+    /// </summary>
+    /// <param name="paths">
+    /// An array of string representations of paths to check for existence. Paths are checked in the order provided.
+    /// </param>
+    /// <returns>
+    /// A <see cref="ChainablePath"/> object representing the first path that exists or <see cref="Empty"/> if none exist.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if the <paramref name="paths"/> array is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the <paramref name="paths"/> array is empty.
+    /// </exception>
+    public static ChainablePath FindFirst(params string[] paths)
+    {
+        if (paths == null)
+        {
+            throw new ArgumentNullException(nameof(paths));
+        }
+
+        return FindFirst(paths.Select(From).ToArray());
+    }
+
+    /// <summary>
+    /// Creates a new instance of <see cref="ChainablePath"/> representing the first existing path from the specified list of paths.
+    /// </summary>
+    /// <param name="paths">
+    /// An array of <see cref="ChainablePath"/> instances to check for existence. Paths are checked in the order provided.
+    /// </param>
+    /// <returns>
+    /// A <see cref="ChainablePath"/> object representing the first path that exists or <see cref="Empty"/> if none exist.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if the <paramref name="paths"/> array is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the <paramref name="paths"/> array is empty.
+    /// </exception>
+    public static ChainablePath FindFirst(params ChainablePath[] paths)
+    {
+        if (paths == null)
+        {
+            throw new ArgumentNullException(nameof(paths));
+        }
+
+        if (paths.Length == 0)
+        {
+            throw new ArgumentException("At least one path must be provided", nameof(paths));
+        }
+
+        foreach (var path in paths)
+        {
+            if (path.Exists)
+            {
+                return path;
+            }
+        }
+
+        return Empty;
     }
 
     private static string NormalizeSlashes(string path)
