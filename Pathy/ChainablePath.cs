@@ -75,6 +75,86 @@ internal readonly record struct ChainablePath
         }
     }
 
+    /// <summary>
+    /// Creates a new instance of <see cref="ChainablePath"/> representing the first existing path from the specified list of paths.
+    /// </summary>
+    /// <param name="paths">
+    /// An array of string representations of paths to check for existence. Paths are checked in the order provided.
+    /// </param>
+    /// <returns>
+    /// A <see cref="ChainablePath"/> object representing the first path that exists.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if the <paramref name="paths"/> array is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the <paramref name="paths"/> array is empty or if none of the paths exist.
+    /// </exception>
+    public static ChainablePath FromFirstExisting(params string[] paths)
+    {
+        if (paths == null)
+        {
+            throw new ArgumentNullException(nameof(paths));
+        }
+
+        if (paths.Length == 0)
+        {
+            throw new ArgumentException("At least one path must be provided", nameof(paths));
+        }
+
+        foreach (string path in paths)
+        {
+            if (path != null)
+            {
+                var chainablePath = From(path);
+                if (chainablePath.Exists)
+                {
+                    return chainablePath;
+                }
+            }
+        }
+
+        throw new ArgumentException("None of the specified paths exist");
+    }
+
+    /// <summary>
+    /// Creates a new instance of <see cref="ChainablePath"/> representing the first existing path from the specified list of paths.
+    /// </summary>
+    /// <param name="paths">
+    /// An array of <see cref="ChainablePath"/> instances to check for existence. Paths are checked in the order provided.
+    /// </param>
+    /// <returns>
+    /// A <see cref="ChainablePath"/> object representing the first path that exists.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if the <paramref name="paths"/> array is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the <paramref name="paths"/> array is empty or if none of the paths exist.
+    /// </exception>
+    public static ChainablePath FromFirstExisting(params ChainablePath[] paths)
+    {
+        if (paths == null)
+        {
+            throw new ArgumentNullException(nameof(paths));
+        }
+
+        if (paths.Length == 0)
+        {
+            throw new ArgumentException("At least one path must be provided", nameof(paths));
+        }
+
+        foreach (var path in paths)
+        {
+            if (path.Exists)
+            {
+                return path;
+            }
+        }
+
+        throw new ArgumentException("None of the specified paths exist");
+    }
+
     private static string NormalizeSlashes(string path)
     {
         return path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);

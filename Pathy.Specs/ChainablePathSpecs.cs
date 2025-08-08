@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using FluentAssertions;
@@ -512,5 +513,166 @@ public class ChainablePathSpecs
         // Assert
         path.IsFile.Should().BeFalse();
         path.IsDirectory.Should().BeTrue();
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_strings_returns_first_existing_path()
+    {
+        // Arrange
+        var existingFile = testFolder / "existing.txt";
+        var nonExistingFile = testFolder / "nonexisting.txt";
+        File.WriteAllText(existingFile, "content");
+
+        // Act
+        var result = ChainablePath.FromFirstExisting(nonExistingFile.ToString(), existingFile.ToString());
+
+        // Assert
+        result.ToString().Should().Be(existingFile.ToString());
+        result.FileExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_ChainablePaths_returns_first_existing_path()
+    {
+        // Arrange
+        var existingFile = testFolder / "existing.txt";
+        var nonExistingFile = testFolder / "nonexisting.txt";
+        File.WriteAllText(existingFile, "content");
+
+        // Act
+        var result = ChainablePath.FromFirstExisting(nonExistingFile, existingFile);
+
+        // Assert
+        result.ToString().Should().Be(existingFile.ToString());
+        result.FileExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_strings_returns_first_existing_directory()
+    {
+        // Arrange
+        var existingDir = testFolder / "existing-dir";
+        var nonExistingDir = testFolder / "nonexisting-dir";
+        existingDir.CreateDirectoryRecursively();
+
+        // Act
+        var result = ChainablePath.FromFirstExisting(nonExistingDir.ToString(), existingDir.ToString());
+
+        // Assert
+        result.ToString().Should().Be(existingDir.ToString());
+        result.DirectoryExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_ChainablePaths_returns_first_existing_directory()
+    {
+        // Arrange
+        var existingDir = testFolder / "existing-dir";
+        var nonExistingDir = testFolder / "nonexisting-dir";
+        existingDir.CreateDirectoryRecursively();
+
+        // Act
+        var result = ChainablePath.FromFirstExisting(nonExistingDir, existingDir);
+
+        // Assert
+        result.ToString().Should().Be(existingDir.ToString());
+        result.DirectoryExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_strings_throws_when_no_paths_exist()
+    {
+        // Arrange
+        var nonExistingFile1 = testFolder / "nonexisting1.txt";
+        var nonExistingFile2 = testFolder / "nonexisting2.txt";
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => 
+            ChainablePath.FromFirstExisting(nonExistingFile1.ToString(), nonExistingFile2.ToString()));
+        exception.Message.Should().Be("None of the specified paths exist");
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_ChainablePaths_throws_when_no_paths_exist()
+    {
+        // Arrange
+        var nonExistingFile1 = testFolder / "nonexisting1.txt";
+        var nonExistingFile2 = testFolder / "nonexisting2.txt";
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => 
+            ChainablePath.FromFirstExisting(nonExistingFile1, nonExistingFile2));
+        exception.Message.Should().Be("None of the specified paths exist");
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_strings_throws_when_null_array()
+    {
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(() => 
+            ChainablePath.FromFirstExisting((string[])null));
+        exception.ParamName.Should().Be("paths");
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_ChainablePaths_throws_when_null_array()
+    {
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(() => 
+            ChainablePath.FromFirstExisting((ChainablePath[])null));
+        exception.ParamName.Should().Be("paths");
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_strings_throws_when_empty_array()
+    {
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => 
+            ChainablePath.FromFirstExisting(new string[0]));
+        exception.Message.Should().StartWith("At least one path must be provided");
+        exception.ParamName.Should().Be("paths");
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_ChainablePaths_throws_when_empty_array()
+    {
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => 
+            ChainablePath.FromFirstExisting(new ChainablePath[0]));
+        exception.Message.Should().StartWith("At least one path must be provided");
+        exception.ParamName.Should().Be("paths");
+    }
+
+    [Fact]
+    public void FromFirstExisting_with_strings_skips_null_paths()
+    {
+        // Arrange
+        var existingFile = testFolder / "existing.txt";
+        File.WriteAllText(existingFile, "content");
+
+        // Act
+        var result = ChainablePath.FromFirstExisting(null, existingFile.ToString());
+
+        // Assert
+        result.ToString().Should().Be(existingFile.ToString());
+        result.FileExists.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("config.json", ".subdirectory/config.json")]
+    [InlineData("app.config", "config/app.config", ".config/app.config")]
+    public void FromFirstExisting_usage_examples_work_as_expected(params string[] paths)
+    {
+        // Arrange - create the second path in each case
+        var testPath = testFolder / paths[1];
+        testPath.Directory.CreateDirectoryRecursively();
+        File.WriteAllText(testPath, "configuration content");
+
+        // Act
+        var result = ChainablePath.FromFirstExisting(paths.Select(p => testFolder / p).Select(p => p.ToString()).ToArray());
+
+        // Assert
+        result.ToString().Should().Be(testPath.ToString());
+        result.FileExists.Should().BeTrue();
     }
 }
