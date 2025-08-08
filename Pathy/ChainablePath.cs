@@ -363,6 +363,85 @@ internal readonly record struct ChainablePath
 
         return From(Path.Combine(parentPath.ToString(), this.ToString()));
     }
+
+    /// <summary>
+    /// Finds the first parent directory in the hierarchy that contains a file matching any of the provided wildcard patterns.
+    /// </summary>
+    /// <param name="wildcards">One or more wildcard patterns to match against files in parent directories (e.g., "*.sln", "*.slnx").</param>
+    /// <returns>
+    /// A <see cref="ChainablePath"/> representing the first parent directory that contains a matching file,
+    /// or <see cref="Empty"/> if no parent directory contains a matching file.
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown if no wildcards are provided or if any wildcard is null or empty.</exception>
+    public ChainablePath FindParentWithFileMatching(params string[] wildcards)
+    {
+        if (wildcards == null || wildcards.Length == 0)
+        {
+            throw new ArgumentException("At least one wildcard pattern must be provided", nameof(wildcards));
+        }
+
+        foreach (string wildcard in wildcards)
+        {
+            if (string.IsNullOrWhiteSpace(wildcard))
+            {
+                throw new ArgumentException("Wildcard patterns cannot be null or empty", nameof(wildcards));
+            }
+        }
+
+        // Start from the directory containing this path, or the path itself if it's already a directory
+        ChainablePath currentDirectory = IsFile ? Directory : this;
+
+        while (!currentDirectory.Equals(Empty) && currentDirectory.DirectoryExists)
+        {
+            try
+            {
+                // Check if any files in the current directory match the wildcards
+                string[] filesInDirectory = System.IO.Directory.GetFiles(currentDirectory.ToString());
+                
+                foreach (string filePath in filesInDirectory)
+                {
+                    string fileName = Path.GetFileName(filePath);
+                    foreach (string wildcard in wildcards)
+                    {
+                        if (MatchesWildcard(fileName, wildcard))
+                        {
+                            return currentDirectory;
+                        }
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Skip directories we can't access
+            }
+            catch (System.IO.DirectoryNotFoundException)
+            {
+                // Directory doesn't exist, move to parent
+            }
+
+            // Move to the parent directory
+            string parentDirectoryName = currentDirectory.DirectoryName;
+            if (string.IsNullOrEmpty(parentDirectoryName) || parentDirectoryName == currentDirectory.ToString())
+            {
+                // We've reached the root
+                break;
+            }
+
+            currentDirectory = From(parentDirectoryName);
+        }
+
+        return Empty;
+    }
+
+    private static bool MatchesWildcard(string fileName, string wildcard)
+    {
+        // Convert wildcard pattern to regex pattern
+        string regexPattern = "^" + System.Text.RegularExpressions.Regex.Escape(wildcard)
+            .Replace("\\*", ".*")
+            .Replace("\\?", ".") + "$";
+
+        return System.Text.RegularExpressions.Regex.IsMatch(fileName, regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+    }
 }
 
 #if PATHY_PUBLIC
