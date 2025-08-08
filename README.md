@@ -41,17 +41,30 @@
 
 Pathy is a tiny source-only library that will allow you to build file and directory paths by chaining together strings like `"c:"`, `"dir1"`, `"dir2"` using
 
-  `ChainablePath.New() / "c:" / "dir1" / "dir2"`.
+```csharp
+ChainablePath.New() / "c:" / "dir1" / "dir2";
+```
+
+Note how the `/` operator is used to chain multiple parts of a path together. This is the primary feature of Pathy. And it doesn't matter if you do that on Linux or Windows. Internally it'll use whatever path separator is suitable.
+
+You can also use the `+` operator to add some phrase to the path _without_ using a separator.
+
+```csharp
+var path = ChainablePath.From("c:") / "my-path" / "to" / "a" / "directory";
+
+path = path + "2"
+
+// Returns "c:/my-path/to/a/directory2"
+string result = path.ToString();
+```
 
 It was heavily inspired by the best build pipeline framework available in the .NET space, [Nuke](https://nuke.build/). Nuke has supported these concepts for many years, but I needed this capability outside build pipelines. Lots of kudos to [Matthias Koch](https://www.linkedin.com/in/matthias-koch-jb/) for what I see as a brilliant idea.
-
-It doesn't have any dependencies and runs on .NET 4.7, .NET 8, as well as frameworks supporting .NET Standard 2.0 and 2.1.
 
 ### What's so special about that?
 
 It makes those chained calls to `Path.Combine` a thing from the past and hides the ugliness of dealing with (trailing) slashes.
 
-It ships as a source-only package, which means you can use it in your own libraries and projects, without incurring any dependency pain on your consuming projects.
+It ships as a source-only package, which means you can use it in your own libraries and projects, without incurring any dependency pain on your consuming projects. It runs on .NET 4.7, .NET 8, as well as frameworks supporting .NET Standard 2.0 and 2.1.
 
 The core Pathy package does not have any dependencies, and I purposely moved the [globbing](https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing#pattern-formats) functionality into a separate package as it depends on `Microsoft.Extensions.FileSystemGlobbing`.
 
@@ -74,26 +87,18 @@ It all starts with the construction of a `ChainablePath` instance to represent a
 There are several ways of doing that.
 
 ```csharp
+// Various ways for constructing a ChainablePath 
 var path = ChainablePath.From("c:") / "my-path" / "to" / "a" /"directory");
 var path = ChainablePath.New() / "c:" / "my-path" / "to" / "a" / "directory";
 var path = "c:/mypath/to/a/directory".ToPath();
 var path = (ChainablePath)"c:/mypath/to/a/directory";
+
+// Find the first available file in the order of appearance and return a
+// ChainablePath representing that file
+var path = ChainablePath.FindFirst("build.yml", ".github\\build.yml");
 ```
 
 Additionally, you can use `ChainablePath.Current` to get the current working directory as an instance of `ChainablePath`, and `ChainablePath.Temp` to get that for the user's temporary folder.
-
-The first thing you'll notice is how the `/` operator is used to chain multiple parts of a path together. This is the primary feature of Pathy. And it doesn't matter if you do that on Linux or Windows. Internally it'll use whatever path separator is suitable.
-
-You can also use the `+` operator to add some phrase to the path _without_ using a separator.
-
-```csharp
-var path = ChainablePath.From("c:") / "my-path" / "to" / "a" / "directory";
-
-path = path + "2"
-
-// Returns "c:/my-path/to/a/directory2"
-string result = path.ToString();
-```
 
 To convert an instance of `ChainablePath` back to a `string`, you can either call `ToString()` or cast the instance to a `string`.
 

@@ -26,6 +26,8 @@ namespace Pathy
         public System.IO.DirectoryInfo ToDirectoryInfo() { }
         public System.IO.FileInfo ToFileInfo() { }
         public override string ToString() { }
+        public static Pathy.ChainablePath FindFirst(params Pathy.ChainablePath[] paths) { }
+        public static Pathy.ChainablePath FindFirst(params string[] paths) { }
         public static Pathy.ChainablePath From(string path) { }
         public static string op_Implicit(Pathy.ChainablePath chainablePath) { }
         public static Pathy.ChainablePath op_Implicit(string path) { }

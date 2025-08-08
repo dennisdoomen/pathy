@@ -1,7 +1,7 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using FluentAssertions;
 using Xunit;
 
@@ -9,12 +9,12 @@ namespace Pathy.Specs;
 
 public class ChainablePathSpecs
 {
-    private readonly char slash = Path.DirectorySeparatorChar;
+    private static readonly char Slash = Path.DirectorySeparatorChar;
     private readonly ChainablePath testFolder;
 
     public ChainablePathSpecs()
     {
-        testFolder =  ChainablePath.Temp / nameof(ChainablePathSpecs) / Environment.Version.ToString();
+        testFolder = ChainablePath.Temp / nameof(ChainablePathSpecs) / Environment.Version.ToString();
         testFolder.DeleteFileOrDirectory();
         testFolder.CreateDirectoryRecursively();
     }
@@ -57,7 +57,7 @@ public class ChainablePathSpecs
         var path = ChainablePath.From(drive);
 
         // Assert
-        path.ToString().Should().BeEquivalentTo("C:" + slash);
+        path.ToString().Should().BeEquivalentTo("C:" + Slash);
         path.IsRooted.Should().BeTrue();
     }
 
@@ -93,7 +93,7 @@ public class ChainablePathSpecs
     public void Can_build_from_a_path_with_reverse_traversals()
     {
         // Arrange
-        var nestedPath = Directory.CreateDirectory(testFolder.ToString() + "/dir1" + slash + "dir2" + slash + "dir3/");
+        var nestedPath = Directory.CreateDirectory(testFolder.ToString() + "/dir1" + Slash + "dir2" + Slash + "dir3/");
 
         string location = nestedPath.FullName + "/../../..";
 
@@ -101,7 +101,7 @@ public class ChainablePathSpecs
         var path = ChainablePath.From(location);
 
         // Assert
-        path.ToString().Should().Be(testFolder.ToString().Trim(slash));
+        path.ToString().Should().Be(testFolder.ToString().Trim(Slash));
         path.IsRooted.Should().BeTrue();
     }
 
@@ -164,7 +164,7 @@ public class ChainablePathSpecs
         var path = ChainablePath.New / "c:" / "temp" / "somefile.txt";
 
         // Assert
-        path.ToString().Should().Be("c:" + slash + "temp" + slash + "somefile.txt");
+        path.ToString().Should().Be("c:" + Slash + "temp" + Slash + "somefile.txt");
     }
 
     [Fact]
@@ -178,7 +178,7 @@ public class ChainablePathSpecs
         var path = absolutePath / relativePath;
 
         // Assert
-        path.ToString().Should().Be(testFolder + slash + "dir1" + slash + "somefile.txt");
+        path.ToString().Should().Be(testFolder + Slash + "dir1" + Slash + "somefile.txt");
     }
 
     [Fact]
@@ -188,7 +188,7 @@ public class ChainablePathSpecs
         string result = ChainablePath.From("temp/somefile.txt");
 
         // Assert
-        result.Should().Be("temp" + slash + "somefile.txt");
+        result.Should().Be("temp" + Slash + "somefile.txt");
     }
 
     [Fact]
@@ -201,7 +201,7 @@ public class ChainablePathSpecs
         var result = temp / "dir1" / "dir2" / "dir3";
 
         // Assert
-        result.DirectoryName.Should().Be(temp + slash + "dir1" + slash + "dir2");
+        result.DirectoryName.Should().Be(temp + Slash + "dir1" + Slash + "dir2");
         result.Name.Should().Be("dir3");
     }
 
@@ -235,7 +235,7 @@ public class ChainablePathSpecs
         var result = testFolder / "dir1" / "dir2" / "dir3" / "file.txt";
 
         // Assert
-        result.DirectoryName.Should().Be(testFolder + slash + "dir1" + slash + "dir2" + slash + "dir3");
+        result.DirectoryName.Should().Be(testFolder + Slash + "dir1" + Slash + "dir2" + Slash + "dir3");
         result.Name.Should().Be("file.txt");
     }
 
@@ -246,7 +246,7 @@ public class ChainablePathSpecs
         var result = testFolder / "dir1" / "dir2/" / "dir3/" / "file.txt";
 
         // Assert
-        result.DirectoryName.Should().Be(testFolder + slash + "dir1" + slash + "dir2" + slash + "dir3");
+        result.DirectoryName.Should().Be(testFolder + Slash + "dir1" + Slash + "dir2" + Slash + "dir3");
         result.Name.Should().Be("file.txt");
     }
 
@@ -341,9 +341,8 @@ public class ChainablePathSpecs
         var result = ChainablePath.From(path);
 
         // Assert
-        result.Directory!.ToString().Should().Be("C:" + slash);
+        result.Directory!.ToString().Should().Be("C:" + Slash);
     }
-
 
     [Fact]
     public void The_root_does_not_have_a_parent_directory()
@@ -512,5 +511,160 @@ public class ChainablePathSpecs
         // Assert
         path.IsFile.Should().BeFalse();
         path.IsDirectory.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Can_find_the_first_existing_file_using_a_string_path()
+    {
+        // Arrange
+        var existingFile = testFolder / "existing.txt";
+        var nonExistingFile = testFolder / "nonexisting.txt";
+        File.WriteAllText(existingFile, "content");
+
+        // Act
+        var result = ChainablePath.FindFirst(nonExistingFile.ToString(), existingFile.ToString());
+
+        // Assert
+        result.ToString().Should().Be(existingFile.ToString());
+        result.FileExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Can_find_the_first_existing_file_using_a_chainable_path()
+    {
+        // Arrange
+        var existingFile = testFolder / "existing.txt";
+        var nonExistingFile = testFolder / "nonexisting.txt";
+        File.WriteAllText(existingFile, "content");
+
+        // Act
+        var result = ChainablePath.FindFirst(nonExistingFile, existingFile);
+
+        // Assert
+        result.ToString().Should().Be(existingFile.ToString());
+        result.FileExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Can_find_the_first_existing_directory_using_a_string_path()
+    {
+        // Arrange
+        var existingDir = testFolder / "existing-dir";
+        var nonExistingDir = testFolder / "nonexisting-dir";
+        existingDir.CreateDirectoryRecursively();
+
+        // Act
+        var result = ChainablePath.FindFirst(nonExistingDir.ToString(), existingDir.ToString());
+
+        // Assert
+        result.ToString().Should().Be(existingDir.ToString());
+        result.DirectoryExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Can_find_the_first_existing_directory_using_a_chainable_path()
+    {
+        // Arrange
+        var existingDir = testFolder / "existing-dir";
+        var nonExistingDir = testFolder / "nonexisting-dir";
+        existingDir.CreateDirectoryRecursively();
+
+        // Act
+        var result = ChainablePath.FindFirst(nonExistingDir, existingDir);
+
+        // Assert
+        result.ToString().Should().Be(existingDir.ToString());
+        result.DirectoryExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Returns_empty_for_non_existing_string_paths()
+    {
+        // Arrange
+        var nonExistingFile1 = testFolder / "nonexisting1.txt";
+        var nonExistingFile2 = testFolder / "nonexisting2.txt";
+
+        // Act
+        var result = ChainablePath.FindFirst(nonExistingFile1.ToString(), nonExistingFile2.ToString());
+
+        // Assert
+        result.Should().Be(ChainablePath.Empty);
+    }
+
+    [Fact]
+    public void Returns_empty_for_non_existing_paths()
+    {
+        // Arrange
+        var nonExistingFile1 = testFolder / "nonexisting1.txt";
+        var nonExistingFile2 = testFolder / "nonexisting2.txt";
+
+        // Act
+        var result = ChainablePath.FindFirst(nonExistingFile1, nonExistingFile2);
+
+        // Assert
+        result.Should().Be(ChainablePath.Empty);
+    }
+
+    [Fact]
+    public void Cannot_find_the_first_existing_path_from_a_null_as_string_array()
+    {
+        // Act
+        var act = () => ChainablePath.FindFirst((string[])null);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>().WithParameterName("paths");
+    }
+
+    [Fact]
+    public void Cannot_find_the_first_existing_path_from_a_null_array()
+    {
+        // Act & Assert
+        var act = () => ChainablePath.FindFirst((ChainablePath[])null);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>().WithParameterName("paths");
+    }
+
+    [Fact]
+    public void Cannot_find_the_first_existing_path_from_an_empty_string_array()
+    {
+        // Act & Assert
+        var act = () =>
+            ChainablePath.FindFirst(new string[0]);
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*At least one path must be provided*")
+            .WithParameterName("paths");
+    }
+
+    [Fact]
+    public void Cannot_find_the_first_existing_path_from_an_empty_array()
+    {
+        // Act & Assert
+        var act = () =>
+            ChainablePath.FindFirst(new ChainablePath[0]);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*At least one path must be provided*")
+            .WithParameterName("paths");
+    }
+
+    [Theory]
+    [InlineData("config.json", ".subdirectory/config.json")]
+    [InlineData("app.config", "config/app.config", ".config/app.config")]
+    public void FromFirstExisting_usage_examples_work_as_expected(params string[] paths)
+    {
+        // Arrange - create the second path in each case
+        var testPath = testFolder / paths[1];
+        testPath.Directory.CreateDirectoryRecursively();
+        File.WriteAllText(testPath, "configuration content");
+
+        // Act
+        var result = ChainablePath.FindFirst(paths.Select(p => testFolder / p).Select(p => p.ToString()).ToArray());
+
+        // Assert
+        result.ToString().Should().Be(testPath.ToString());
+        result.FileExists.Should().BeTrue();
     }
 }
