@@ -514,6 +514,183 @@ public class ChainablePathSpecs
     }
 
     [Fact]
+    public void Parent_directory_with_matching_file_is_found()
+    {
+        // Arrange
+        var testRoot = testFolder / "FindParentTest";
+        var grandparentDir = testRoot / "Grandparent";
+        var parentDir = grandparentDir / "Parent";
+        var childDir = parentDir / "Child";
+
+        childDir.CreateDirectoryRecursively();
+        File.WriteAllText(parentDir / "project.sln", "solution file");
+        File.WriteAllText(childDir / "program.cs", "some code");
+
+        // Act
+        var result = childDir.FindParentWithFileMatching("*.sln");
+
+        // Assert
+        result.Should().Be(parentDir);
+    }
+
+    [Fact]
+    public void Parent_directory_with_multiple_matching_wildcards_is_found()
+    {
+        // Arrange
+        var testRoot = testFolder / "FindParentMultipleTest";
+        var grandparentDir = testRoot / "Grandparent";
+        var parentDir = grandparentDir / "Parent";
+        var childDir = parentDir / "Child";
+
+        childDir.CreateDirectoryRecursively();
+        File.WriteAllText(parentDir / "project.slnx", "solution file");
+        File.WriteAllText(childDir / "program.cs", "some code");
+
+        // Act
+        var result = childDir.FindParentWithFileMatching("*.sln", "*.slnx");
+
+        // Assert
+        result.Should().Be(parentDir);
+    }
+
+    [Fact]
+    public void Empty_path_returned_when_no_match_found()
+    {
+        // Arrange
+        var testRoot = testFolder / "FindParentNoMatchTest";
+        var parentDir = testRoot / "Parent";
+        var childDir = parentDir / "Child";
+
+        childDir.CreateDirectoryRecursively();
+        File.WriteAllText(childDir / "program.cs", "some code");
+
+        // Act
+        var result = childDir.FindParentWithFileMatching("*.sln");
+
+        // Assert
+        result.Should().Be(ChainablePath.Empty);
+    }
+
+    [Fact]
+    public void Parent_search_works_from_file_path()
+    {
+        // Arrange
+        var testRoot = testFolder / "FindParentFromFileTest";
+        var parentDir = testRoot / "Parent";
+        var childDir = parentDir / "Child";
+
+        childDir.CreateDirectoryRecursively();
+        File.WriteAllText(parentDir / "project.sln", "solution file");
+        File.WriteAllText(childDir / "program.cs", "some code");
+
+        var filePath = childDir / "program.cs";
+
+        // Act
+        var result = filePath.FindParentWithFileMatching("*.sln");
+
+        // Assert
+        result.Should().Be(parentDir);
+    }
+
+    [Fact]
+    public void Closest_parent_directory_is_found()
+    {
+        // Arrange
+        var testRoot = testFolder / "FindParentClosestTest";
+        var grandparentDir = testRoot / "Grandparent";
+        var parentDir = grandparentDir / "Parent";
+        var childDir = parentDir / "Child";
+
+        childDir.CreateDirectoryRecursively();
+        File.WriteAllText(grandparentDir / "outer.sln", "outer solution file");
+        File.WriteAllText(parentDir / "inner.sln", "inner solution file");
+        File.WriteAllText(childDir / "program.cs", "some code");
+
+        // Act
+        var result = childDir.FindParentWithFileMatching("*.sln");
+
+        // Assert
+        result.Should().Be(parentDir); // Should find the closest parent, not the grandparent
+    }
+
+    [Fact]
+    public void Case_insensitive_matching_works()
+    {
+        // Arrange
+        var testRoot = testFolder / "FindParentCaseTest";
+        var parentDir = testRoot / "Parent";
+        var childDir = parentDir / "Child";
+
+        childDir.CreateDirectoryRecursively();
+        File.WriteAllText(parentDir / "PROJECT.SLN", "solution file");
+        File.WriteAllText(childDir / "program.cs", "some code");
+
+        // Act
+        var result = childDir.FindParentWithFileMatching("*.sln");
+
+        // Assert
+        result.Should().Be(parentDir);
+    }
+
+    [Fact]
+    public void Null_wildcards_throws_exception()
+    {
+        // Arrange
+        var path = testFolder / "SomeDir";
+
+        // Act
+        Action act = () => path.FindParentWithFileMatching(null);
+
+        // Assert
+        act.Should().Throw<ArgumentException>().WithMessage("*wildcard*provided*");
+    }
+
+    [Fact]
+    public void Empty_wildcards_throws_exception()
+    {
+        // Arrange
+        var path = testFolder / "SomeDir";
+
+        // Act
+        Action act = () => path.FindParentWithFileMatching();
+
+        // Assert
+        act.Should().Throw<ArgumentException>().WithMessage("*wildcard*provided*");
+    }
+
+    [Fact]
+    public void Null_or_empty_wildcard_throws_exception()
+    {
+        // Arrange
+        var path = testFolder / "SomeDir";
+
+        // Act
+        Action act = () => path.FindParentWithFileMatching("*.sln", "", "*.slnx");
+
+        // Assert
+        act.Should().Throw<ArgumentException>().WithMessage("*cannot be null or empty*");
+    }
+
+    [Fact]
+    public void Question_mark_wildcard_matching_works()
+    {
+        // Arrange
+        var testRoot = testFolder / "FindParentQuestionTest";
+        var parentDir = testRoot / "Parent";
+        var childDir = parentDir / "Child";
+
+        childDir.CreateDirectoryRecursively();
+        File.WriteAllText(parentDir / "test1.txt", "test file");
+        File.WriteAllText(childDir / "program.cs", "some code");
+
+        // Act
+        var result = childDir.FindParentWithFileMatching("test?.txt");
+
+        // Assert
+        result.Should().Be(parentDir);
+    }
+
+    [Fact]
     public void Can_find_the_first_existing_file_using_a_string_path()
     {
         // Arrange
@@ -648,23 +825,5 @@ public class ChainablePathSpecs
         act.Should().Throw<ArgumentException>()
             .WithMessage("*At least one path must be provided*")
             .WithParameterName("paths");
-    }
-
-    [Theory]
-    [InlineData("config.json", ".subdirectory/config.json")]
-    [InlineData("app.config", "config/app.config", ".config/app.config")]
-    public void FromFirstExisting_usage_examples_work_as_expected(params string[] paths)
-    {
-        // Arrange - create the second path in each case
-        var testPath = testFolder / paths[1];
-        testPath.Directory.CreateDirectoryRecursively();
-        File.WriteAllText(testPath, "configuration content");
-
-        // Act
-        var result = ChainablePath.FindFirst(paths.Select(p => testFolder / p).Select(p => p.ToString()).ToArray());
-
-        // Assert
-        result.ToString().Should().Be(testPath.ToString());
-        result.FileExists.Should().BeTrue();
     }
 }
