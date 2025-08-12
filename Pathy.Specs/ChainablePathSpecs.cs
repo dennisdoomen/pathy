@@ -568,7 +568,7 @@ public class ChainablePathSpecs
         var result = childDir.FindParentWithFileMatching("*.sln");
 
         // Assert
-        result.Should().Be(ChainablePath.Empty);
+        result.Should().Be(ChainablePath.Null);
     }
 
     [Fact]
@@ -765,7 +765,7 @@ public class ChainablePathSpecs
         var result = ChainablePath.FindFirst(nonExistingFile1.ToString(), nonExistingFile2.ToString());
 
         // Assert
-        result.Should().Be(ChainablePath.Empty);
+        result.IsNull.Should().BeTrue();
     }
 
     [Fact]
