@@ -119,10 +119,11 @@ Given an instance of `ChainablePath`, you can get a lot of useful information:
 * Want to know the delta between two paths? Use `AsRelativeTo`.
 * To determine if a file has a case-insensitive extension, use `HasExtension(".txt")` or `HasExtension("txt")`.
 
+And if the built-in functionality really isn't enough, you can always call `ToDirectoryInfo` or `ToFileInfo` to continue with an instance of `DirectoryInfo` and `FileInfo`.
+
 Other features
 * Build an absolute path from a relative path using `ToAbsolute` to use the current directory as the base or `ToAbsolute(parentPath)` to use something else as the base.
-
-And if the built-in functionality really isn't enough, you can always call `ToDirectoryInfo` or `ToFileInfo` to continue with an instance of `DirectoryInfo` and `FileInfo`.
+* Finding the closest parent directory containing a file matching one or more wildcards. For example, given you have a `ChainablePath` pointing to a `.csproj` file, you can then use `FindParentWithFileMatching("*.sln", "*.slnx")` to find the directory containing the `.sln` or `.slnx` file.
 
 ### Globbing
 
