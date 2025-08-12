@@ -11,6 +11,7 @@ namespace Pathy
         public bool FileExists { get; }
         public bool IsDirectory { get; }
         public bool IsFile { get; }
+        public bool IsNull { get; }
         public bool IsRooted { get; }
         public string Name { get; }
         public Pathy.ChainablePath Parent { get; }
@@ -18,6 +19,7 @@ namespace Pathy
         public static Pathy.ChainablePath Current { get; }
         public static Pathy.ChainablePath Empty { get; }
         public static Pathy.ChainablePath New { get; }
+        public static Pathy.ChainablePath Null { get; }
         public static Pathy.ChainablePath Temp { get; }
         public Pathy.ChainablePath AsRelativeTo(Pathy.ChainablePath basePath) { }
         public Pathy.ChainablePath FindParentWithFileMatching(params string[] wildcards) { }

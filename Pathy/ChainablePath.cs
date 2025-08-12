@@ -33,6 +33,14 @@ internal readonly record struct ChainablePath
     public static ChainablePath Empty { get; } = new(string.Empty);
 
     /// <summary>
+    /// Represents a <see cref="ChainablePath"/> not pointing to any file or directory.
+    /// </summary>
+    /// <remarks>
+    /// Implements the Null Pattern and should be used as a replacement of <see cref="Empty"/>
+    /// </remarks>
+    public static ChainablePath Null { get; } = new(string.Empty);
+
+    /// <summary>
     /// Gets a default, empty <see cref="ChainablePath"/> instance.
     /// </summary>
     public static ChainablePath New => new(string.Empty);
@@ -220,6 +228,11 @@ internal readonly record struct ChainablePath
     {
         return From(leftPath.ToString() + additionalPath);
     }
+
+    /// <summary>
+    /// Gets a value indicating whether the current <see cref="ChainablePath"/> instance is equal to <see cref="ChainablePath.Null"/>.
+    /// </summary>
+    public bool IsNull => Equals(Null);
 
     /// <summary>
     /// Gets the name of the file or directory represented by the current path, without the parent directory.
