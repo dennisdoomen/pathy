@@ -7,6 +7,13 @@ updates:
       day: "monday"
       time: "16:00"
       timezone: "Europe/Copenhagen"
+    groups:
+      minor-and-patch-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "nuget"
     directory: "/"
@@ -15,3 +22,10 @@ updates:
       day: "monday"
       time: "16:00"
       timezone: "Europe/Copenhagen"
+    groups:
+      minor-and-patch-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
