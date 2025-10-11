@@ -142,6 +142,28 @@ Next to that, Pathy also provides a bunch of extension methods to operate on the
 * `DeleteFileOrDirectory`
 * `MoveFileOrDirectory`
 
+### Resolving files
+
+If you have a `ChainablePath` that could represent either a file or a directory, and you want to resolve a specific file name, you can use the `ResolveFile` extension method:
+
+```csharp
+// When the path is a directory containing the file
+var directory = ChainablePath.From("c:/projects/myapp");
+var configFile = directory.ResolveFile("appsettings.json");
+// Returns: c:/projects/myapp/appsettings.json (if it exists)
+
+// When the path is already the file itself
+var filePath = ChainablePath.From("c:/projects/myapp/appsettings.json");
+var resolved = filePath.ResolveFile("appsettings.json");
+// Returns: c:/projects/myapp/appsettings.json (if it exists)
+
+// When the file doesn't exist
+var missing = directory.ResolveFile("missing.txt");
+// Returns: ChainablePath.Empty
+```
+
+The method performs case-insensitive file name matching, so `ResolveFile("CONFIG.JSON")` will match `config.json`.
+
 ## Building
 
 To build this repository locally so you can contribute to it, you need the following:
