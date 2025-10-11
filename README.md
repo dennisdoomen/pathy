@@ -118,6 +118,7 @@ Given an instance of `ChainablePath`, you can get a lot of useful information:
 * Not sure if a path points to an actual file system entry? Use `IsFile`, `IsDirectory` or `Exists`
 * Want to know the delta between two paths? Use `AsRelativeTo`.
 * To determine if a file has a case-insensitive extension, use `HasExtension(".txt")` or `HasExtension("txt")`.
+* To check if a path has a specific file or directory name (case-insensitive), use `HasName("MyFile.txt")`.
 * Get the last write time in UTC using `LastWriteTimeUtc` for both files and directories.
 
 And if the built-in functionality really isn't enough, you can always call `ToDirectoryInfo` or `ToFileInfo` to continue with an instance of `DirectoryInfo` and `FileInfo`.
