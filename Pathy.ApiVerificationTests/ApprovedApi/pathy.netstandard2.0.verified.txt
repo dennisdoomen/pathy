@@ -23,6 +23,7 @@ namespace Pathy
         public static Pathy.ChainablePath Temp { get; }
         public Pathy.ChainablePath FindParentWithFileMatching(params string[] wildcards) { }
         public bool HasExtension(string extension) { }
+        public bool HasName(string name) { }
         public Pathy.ChainablePath ToAbsolute() { }
         public object ToAbsolute(Pathy.ChainablePath parentPath) { }
         public System.IO.DirectoryInfo ToDirectoryInfo() { }
