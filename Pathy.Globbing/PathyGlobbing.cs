@@ -14,10 +14,10 @@ using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 namespace Pathy
 {
 #if PATHY_PUBLIC
-    public static class ChainablePathExtensions
+    public static class ChainablePathGlobbingExtensions
 #else
     [global::Microsoft.CodeAnalysis.Embedded]
-    internal static class ChainablePathExtensions
+    internal static class ChainablePathGlobbingExtensions
 #endif
     {
         /// <summary>
@@ -40,19 +40,5 @@ namespace Pathy
                 .Select(file => ChainablePath.From(path / file.Path))
                 .ToArray();
         }
-    }
-}
-
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-namespace Microsoft.CodeAnalysis
-{
-    /// <summary>
-    /// A special attribute recognized by Roslyn, that marks a type as "embedded", meaning it won't ever be visible from other assemblies.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.All)]
-    [ExcludeFromCodeCoverage]
-    internal sealed class EmbeddedAttribute : Attribute
-    {
     }
 }
