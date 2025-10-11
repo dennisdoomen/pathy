@@ -131,7 +131,11 @@ If you add the `Pathy.Globbing` NuGet source-only package as well, you'll get ac
 
 
 ```csharp
+// Match files with a single pattern
 ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.json");
+
+// Match files with multiple patterns
+ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.txt", "**/*.md", "**/*.json");
 ```
 
 ### File system operations
