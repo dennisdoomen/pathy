@@ -424,6 +424,22 @@ namespace Pathy
         }
 
         /// <summary>
+        /// Determines if the current path has the specified file or directory name (case-insensitive).
+        /// </summary>
+        /// <param name="name">
+        /// The name to check for (e.g., "MyFile.txt").
+        /// </param>
+        public bool HasName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("Name cannot be null or empty", nameof(name));
+            }
+
+            return string.Equals(Name, name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
         /// Converts the current <see cref="ChainablePath"/> to an absolute path using the current working directory.
         /// </summary>
         public ChainablePath ToAbsolute()

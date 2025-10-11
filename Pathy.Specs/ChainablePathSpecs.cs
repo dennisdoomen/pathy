@@ -417,6 +417,36 @@ public class ChainablePathSpecs
         act.Should().Throw<ArgumentException>("*null*empty*");
     }
 
+    [Theory]
+    [InlineData("SomeFile.txt", true)]
+    [InlineData("somefile.txt", true)]
+    [InlineData("SOMEFILE.TXT", true)]
+    [InlineData("SomeFile", false)]
+    [InlineData("OtherFile.txt", false)]
+    public void Can_check_for_a_name(string name, bool shouldMatch)
+    {
+        // Act
+        var path = ChainablePath.Temp / "SomeFile.txt";
+
+        // Assert
+        path.HasName(name).Should().Be(shouldMatch);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void Checking_for_a_name_requires_a_valid_name(string name)
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "SomeFile.txt";
+
+        // Act
+        Action act = () => path.HasName(name);
+
+        // Assert
+        act.Should().Throw<ArgumentException>("*null*empty*");
+    }
+
 #if NET6_0_OR_GREATER
     [Fact]
     public void Can_get_the_difference_as_a_relative_path()
