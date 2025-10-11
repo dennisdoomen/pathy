@@ -184,6 +184,7 @@ var missing = directory.ResolveFile("missing.txt");
 ```
 
 The method performs case-insensitive file name matching, so `ResolveFile("CONFIG.JSON")` will match `config.json`.
+
 ## Building
 
 To build this repository locally so you can contribute to it, you need the following:
