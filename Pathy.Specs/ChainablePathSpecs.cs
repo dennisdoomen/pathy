@@ -466,6 +466,98 @@ public class ChainablePathSpecs
     }
 
     [Fact]
+    public void Can_find_files_using_multiple_globbing_patterns()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1" / "dir2" / "dir3" / "file.txt";
+
+        temp.CreateDirectoryRecursively();
+        File.WriteAllText(temp / "file.txt", "Hello World!");
+        File.WriteAllText(temp / "file2.txt", "Hello World!");
+        File.WriteAllText(temp / "file3.doc", "Hello World!");
+        File.WriteAllText(temp / "file4.md", "# Markdown");
+
+        // Act
+        var files = (ChainablePath.Temp / "dir1").GlobFiles("**/*.txt", "**/*.doc");
+
+        // Assert
+        files.Should().BeEquivalentTo([
+            temp / "file.txt",
+            temp / "file2.txt",
+            temp / "file3.doc"
+        ], options => options.ComparingRecordsByValue());
+    }
+
+    [Fact]
+    public void Can_find_files_using_multiple_globbing_patterns_with_different_depths()
+    {
+        // Arrange
+        var baseDir = testFolder / "MultiPatternTest";
+        var deepDir = baseDir / "level1" / "level2";
+        deepDir.CreateDirectoryRecursively();
+
+        File.WriteAllText(baseDir / "root.txt", "Root");
+        File.WriteAllText(baseDir / "root.md", "# Root");
+        File.WriteAllText(deepDir / "deep.txt", "Deep");
+        File.WriteAllText(deepDir / "deep.json", "{}");
+
+        // Act
+        var files = baseDir.GlobFiles("**/*.txt", "**/*.json");
+
+        // Assert
+        files.Should().BeEquivalentTo([
+            baseDir / "root.txt",
+            deepDir / "deep.txt",
+            deepDir / "deep.json"
+        ], options => options.ComparingRecordsByValue());
+    }
+
+    [Fact]
+    public void GlobFiles_with_multiple_patterns_throws_when_no_patterns_provided()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.GlobFiles(new string[0]);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*At least one glob pattern must be provided*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void GlobFiles_with_multiple_patterns_throws_when_pattern_is_null()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.GlobFiles("**/*.txt", null, "**/*.doc");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void GlobFiles_with_multiple_patterns_throws_when_pattern_is_empty()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.GlobFiles("**/*.txt", "", "**/*.doc");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
     public void Can_convert_to_directory_info()
     {
         // Act

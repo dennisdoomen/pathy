@@ -31,8 +31,39 @@ namespace Pathy
         /// <param name="globPattern">The glob pattern used to match file paths, e.g. **/*.md or dir/**/*</param>
         public static ChainablePath[] GlobFiles(this ChainablePath path, string globPattern)
         {
+            return GlobFiles(path, new[] { globPattern });
+        }
+
+        /// <summary>
+        /// Matches files in the specified directory or subdirectories according to the provided glob patterns
+        /// and returns them as an array of <see cref="ChainablePath"/> objects.
+        /// </summary>
+        /// <remarks>
+        /// See also <seealso href="https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing"/>
+        /// </remarks>
+        /// <param name="path">The base directory path to start the glob search from.</param>
+        /// <param name="globPatterns">One or more glob patterns used to match file paths, e.g. **/*.md or dir/**/*</param>
+        /// <exception cref="ArgumentException">Thrown if no glob patterns are provided or if any pattern is null or empty.</exception>
+        public static ChainablePath[] GlobFiles(this ChainablePath path, params string[] globPatterns)
+        {
+            if (globPatterns == null || globPatterns.Length == 0)
+            {
+                throw new ArgumentException("At least one glob pattern must be provided", nameof(globPatterns));
+            }
+
+            foreach (string pattern in globPatterns)
+            {
+                if (string.IsNullOrWhiteSpace(pattern))
+                {
+                    throw new ArgumentException("Glob patterns cannot be null or empty", nameof(globPatterns));
+                }
+            }
+
             Matcher matcher = new(StringComparison.OrdinalIgnoreCase);
-            matcher.AddInclude(globPattern);
+            foreach (string pattern in globPatterns)
+            {
+                matcher.AddInclude(pattern);
+            }
 
             return matcher
                 .Execute(new DirectoryInfoWrapper(path.ToDirectoryInfo()))
