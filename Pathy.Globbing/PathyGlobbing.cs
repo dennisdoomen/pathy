@@ -31,14 +31,7 @@ namespace Pathy
         /// <param name="globPattern">The glob pattern used to match file paths, e.g. **/*.md or dir/**/*</param>
         public static ChainablePath[] GlobFiles(this ChainablePath path, string globPattern)
         {
-            Matcher matcher = new(StringComparison.OrdinalIgnoreCase);
-            matcher.AddInclude(globPattern);
-
-            return matcher
-                .Execute(new DirectoryInfoWrapper(path.ToDirectoryInfo()))
-                .Files
-                .Select(file => ChainablePath.From(path / file.Path))
-                .ToArray();
+            return GlobFiles(path, new[] { globPattern });
         }
 
         /// <summary>
