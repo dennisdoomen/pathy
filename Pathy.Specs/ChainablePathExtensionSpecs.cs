@@ -129,4 +129,100 @@ public class ChainablePathExtensionSpecs
         // Assert
         (testFolder / "Destination" / "NewName" / "temp.txt").Exists.Should().BeTrue();
     }
+
+    [Fact]
+    public void Can_delete_multiple_files()
+    {
+        // Arrange
+        var file1 = testFolder / "file1.txt";
+        var file2 = testFolder / "file2.txt";
+        var file3 = testFolder / "file3.txt";
+        File.WriteAllText(file1, "Hello World!");
+        File.WriteAllText(file2, "Hello World!");
+        File.WriteAllText(file3, "Hello World!");
+
+        var files = new[] { file1, file2, file3 };
+
+        // Act
+        files.DeleteFileOrDirectory();
+
+        // Assert
+        file1.FileExists.Should().BeFalse();
+        file2.FileExists.Should().BeFalse();
+        file3.FileExists.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Can_delete_multiple_directories()
+    {
+        // Arrange
+        var dir1 = testFolder / "dir1";
+        var dir2 = testFolder / "dir2";
+        var dir3 = testFolder / "dir3";
+        dir1.CreateDirectoryRecursively();
+        dir2.CreateDirectoryRecursively();
+        dir3.CreateDirectoryRecursively();
+        File.WriteAllText(dir1 / "file.txt", "Hello World!");
+        File.WriteAllText(dir2 / "file.txt", "Hello World!");
+        File.WriteAllText(dir3 / "file.txt", "Hello World!");
+
+        var directories = new[] { dir1, dir2, dir3 };
+
+        // Act
+        directories.DeleteFileOrDirectory();
+
+        // Assert
+        dir1.Exists.Should().BeFalse();
+        dir2.Exists.Should().BeFalse();
+        dir3.Exists.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Can_move_multiple_files_to_a_directory()
+    {
+        // Arrange
+        (testFolder / "Source").CreateDirectoryRecursively();
+        (testFolder / "Destination").CreateDirectoryRecursively();
+        var file1 = testFolder / "Source" / "file1.txt";
+        var file2 = testFolder / "Source" / "file2.txt";
+        var file3 = testFolder / "Source" / "file3.txt";
+        File.WriteAllText(file1, "Hello World!");
+        File.WriteAllText(file2, "Hello World!");
+        File.WriteAllText(file3, "Hello World!");
+
+        var files = new[] { file1, file2, file3 };
+
+        // Act
+        files.MoveFileOrDirectory(testFolder / "Destination");
+
+        // Assert
+        file1.Exists.Should().BeFalse();
+        file2.Exists.Should().BeFalse();
+        file3.Exists.Should().BeFalse();
+        (testFolder / "Destination" / "file1.txt").Exists.Should().BeTrue();
+        (testFolder / "Destination" / "file2.txt").Exists.Should().BeTrue();
+        (testFolder / "Destination" / "file3.txt").Exists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Can_move_multiple_directories_under_another_directory()
+    {
+        // Arrange
+        (testFolder / "Source" / "dir1").CreateDirectoryRecursively();
+        (testFolder / "Source" / "dir2").CreateDirectoryRecursively();
+        (testFolder / "Destination").CreateDirectoryRecursively();
+        File.WriteAllText(testFolder / "Source" / "dir1" / "file.txt", "Hello World!");
+        File.WriteAllText(testFolder / "Source" / "dir2" / "file.txt", "Hello World!");
+
+        var directories = new[] { testFolder / "Source" / "dir1", testFolder / "Source" / "dir2" };
+
+        // Act
+        directories.MoveFileOrDirectory(testFolder / "Destination");
+
+        // Assert
+        (testFolder / "Source" / "dir1").Exists.Should().BeFalse();
+        (testFolder / "Source" / "dir2").Exists.Should().BeFalse();
+        (testFolder / "Destination" / "dir1" / "file.txt").Exists.Should().BeTrue();
+        (testFolder / "Destination" / "dir2" / "file.txt").Exists.Should().BeTrue();
+    }
 }

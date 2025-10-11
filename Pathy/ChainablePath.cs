@@ -340,6 +340,31 @@ namespace Pathy
         public static ChainablePath Temp => From(Path.GetTempPath());
 
         /// <summary>
+        /// Gets the last write time of the file or directory in Coordinated Universal Time (UTC).
+        /// </summary>
+        /// <remarks>
+        /// For files, returns the result of <see cref="File.GetLastWriteTimeUtc"/>.
+        /// For directories, returns the result of <see cref="Directory.GetLastWriteTimeUtc"/>.
+        /// If the path does not exist, returns <see cref="DateTime.MinValue"/>.
+        /// </remarks>
+        public DateTime LastWriteTimeUtc
+        {
+            get
+            {
+                if (FileExists)
+                {
+                    return File.GetLastWriteTimeUtc(path);
+                }
+                else if (DirectoryExists)
+                {
+                    return System.IO.Directory.GetLastWriteTimeUtc(path);
+                }
+                
+                return DateTime.MinValue;
+            }
+        }
+
+        /// <summary>
         /// Returns a new <see cref="ChainablePath"/> instance representing the path relative to the specified base path.
         /// </summary>
         /// <param name="basePath">
