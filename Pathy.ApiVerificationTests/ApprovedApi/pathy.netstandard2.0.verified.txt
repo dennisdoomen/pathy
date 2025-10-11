@@ -42,6 +42,7 @@ namespace Pathy
         public static void CreateDirectoryRecursively(this Pathy.ChainablePath path) { }
         public static void DeleteFileOrDirectory(this Pathy.ChainablePath path) { }
         public static void MoveFileOrDirectory(this Pathy.ChainablePath sourcePath, Pathy.ChainablePath destinationDirectory, string newName = null) { }
+        public static Pathy.ChainablePath ResolveFile(this Pathy.ChainablePath path, string fileName) { }
     }
     public static class StringExtensions
     {

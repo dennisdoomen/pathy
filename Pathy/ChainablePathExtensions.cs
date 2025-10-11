@@ -61,4 +61,42 @@ internal static class ChainablePathExtensions
             Directory.Move(sourcePath, Path.Combine(destinationDirectory.ToString(), newName ?? sourcePath.Name));
         }
     }
+
+    /// <summary>
+    /// Resolves a file name within the current path.
+    /// If the path represents a file with the specified name and that file exists, returns the path.
+    /// If the path is a directory that contains a file with the specified name, returns the path to that file.
+    /// Otherwise, returns <see cref="ChainablePath.Empty"/>.
+    /// </summary>
+    /// <param name="path">The base path to resolve from (can be a file or directory).</param>
+    /// <param name="fileName">The file name to resolve.</param>
+    /// <returns>
+    /// A <see cref="ChainablePath"/> representing the resolved file if found; otherwise, <see cref="ChainablePath.Empty"/>.
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="fileName"/> is null or empty.</exception>
+    public static ChainablePath ResolveFile(this ChainablePath path, string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName))
+        {
+            throw new ArgumentException("File name cannot be null or empty", nameof(fileName));
+        }
+
+        // Case 1: If the path is a file with the specified name and exists, return it
+        if (path.IsFile && string.Equals(path.Name, fileName, StringComparison.OrdinalIgnoreCase))
+        {
+            return path;
+        }
+
+        // Case 2: If the path is a directory, check if it contains the file
+        if (path.IsDirectory)
+        {
+            ChainablePath filePath = path / fileName;
+            if (filePath.FileExists)
+            {
+                return filePath;
+            }
+        }
+
+        return ChainablePath.Empty;
+    }
 }
