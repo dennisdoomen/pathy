@@ -825,4 +825,49 @@ public class ChainablePathSpecs
             .WithMessage("*At least one path must be provided*")
             .WithParameterName("paths");
     }
+
+    [Fact]
+    public void Can_get_last_write_time_utc_for_file()
+    {
+        // Arrange
+        var filePath = testFolder / "test_file.txt";
+        File.WriteAllText(filePath, "Hello World!");
+        var expectedTime = File.GetLastWriteTimeUtc(filePath.ToString());
+
+        // Act
+        var actualTime = filePath.LastWriteTimeUtc;
+
+        // Assert
+        actualTime.Should().BeCloseTo(expectedTime, TimeSpan.FromSeconds(1));
+        actualTime.Kind.Should().Be(DateTimeKind.Utc);
+    }
+
+    [Fact]
+    public void Can_get_last_write_time_utc_for_directory()
+    {
+        // Arrange
+        var dirPath = testFolder / "test_dir";
+        Directory.CreateDirectory(dirPath);
+        var expectedTime = Directory.GetLastWriteTimeUtc(dirPath.ToString());
+
+        // Act
+        var actualTime = dirPath.LastWriteTimeUtc;
+
+        // Assert
+        actualTime.Should().BeCloseTo(expectedTime, TimeSpan.FromSeconds(1));
+        actualTime.Kind.Should().Be(DateTimeKind.Utc);
+    }
+
+    [Fact]
+    public void Returns_min_value_for_non_existing_path()
+    {
+        // Arrange
+        var nonExistingPath = testFolder / "non_existing_file.txt";
+
+        // Act
+        var actualTime = nonExistingPath.LastWriteTimeUtc;
+
+        // Assert
+        actualTime.Should().Be(DateTime.MinValue);
+    }
 }

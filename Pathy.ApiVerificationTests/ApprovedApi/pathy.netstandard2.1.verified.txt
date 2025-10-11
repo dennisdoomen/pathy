@@ -13,6 +13,7 @@ namespace Pathy
         public bool IsFile { get; }
         public bool IsNull { get; }
         public bool IsRooted { get; }
+        public System.DateTime LastWriteTimeUtc { get; }
         public string Name { get; }
         public Pathy.ChainablePath Parent { get; }
         public Pathy.ChainablePath Root { get; }
