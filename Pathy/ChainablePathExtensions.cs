@@ -63,6 +63,32 @@ internal static class ChainablePathExtensions
     }
 
     /// <summary>
+    /// Deletes the files or directories represented by the specified collection of <see cref="ChainablePath"/> instances.
+    /// If a path represents a directory, it is deleted recursively.
+    /// </summary>
+    public static void DeleteFileOrDirectory(this System.Collections.Generic.IEnumerable<ChainablePath> paths)
+    {
+        foreach (var path in paths)
+        {
+            path.DeleteFileOrDirectory();
+        }
+    }
+
+    /// <summary>
+    /// Moves files or directories represented by the specified collection of <see cref="ChainablePath"/> instances to a target directory.
+    /// </summary>
+    /// <param name="sourcePaths">The collection of paths of the files or directories to move.</param>
+    /// <param name="destinationDirectory">The target directory where the files or directories will be moved.</param>
+    public static void MoveFileOrDirectory(this System.Collections.Generic.IEnumerable<ChainablePath> sourcePaths,
+        ChainablePath destinationDirectory)
+    {
+        foreach (var sourcePath in sourcePaths)
+        {
+            sourcePath.MoveFileOrDirectory(destinationDirectory);
+        }
+    }
+
+    /// <summary>
     /// Resolves a file name within the current path.
     /// If the path represents a file with the specified name and that file exists, returns the path.
     /// If the path is a directory that contains a file with the specified name, returns the path to that file.

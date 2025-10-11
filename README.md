@@ -118,6 +118,7 @@ Given an instance of `ChainablePath`, you can get a lot of useful information:
 * Not sure if a path points to an actual file system entry? Use `IsFile`, `IsDirectory` or `Exists`
 * Want to know the delta between two paths? Use `AsRelativeTo`.
 * To determine if a file has a case-insensitive extension, use `HasExtension(".txt")` or `HasExtension("txt")`.
+* Get the last write time in UTC using `LastWriteTimeUtc` for both files and directories.
 
 And if the built-in functionality really isn't enough, you can always call `ToDirectoryInfo` or `ToFileInfo` to continue with an instance of `DirectoryInfo` and `FileInfo`.
 
@@ -131,7 +132,11 @@ If you add the `Pathy.Globbing` NuGet source-only package as well, you'll get ac
 
 
 ```csharp
+// Match files with a single pattern
 ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.json");
+
+// Match files with multiple patterns
+ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.txt", "**/*.md", "**/*.json");
 ```
 
 ### File system operations
@@ -141,6 +146,22 @@ Next to that, Pathy also provides a bunch of extension methods to operate on the
 * `CreateDirectoryRecursively`
 * `DeleteFileOrDirectory`
 * `MoveFileOrDirectory`
+
+These methods also support operating on collections of `ChainablePath` objects:
+
+```csharp
+// Delete multiple files or directories at once
+var files = new[] { 
+    ChainablePath.Temp / "file1.txt", 
+    ChainablePath.Temp / "file2.txt",
+    ChainablePath.Temp / "dir1" 
+};
+files.DeleteFileOrDirectory();
+
+// Move multiple files to a destination directory
+var filesToMove = (ChainablePath.Current / "source").GlobFiles("*.txt");
+filesToMove.MoveFileOrDirectory(ChainablePath.Current / "destination");
+```
 
 ### Resolving files
 
@@ -163,7 +184,6 @@ var missing = directory.ResolveFile("missing.txt");
 ```
 
 The method performs case-insensitive file name matching, so `ResolveFile("CONFIG.JSON")` will match `config.json`.
-
 ## Building
 
 To build this repository locally so you can contribute to it, you need the following:
