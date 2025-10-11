@@ -13,6 +13,7 @@ namespace Pathy
         public bool IsFile { get; }
         public bool IsNull { get; }
         public bool IsRooted { get; }
+        public System.DateTime LastWriteTimeInUtc { get; }
         public string Name { get; }
         public Pathy.ChainablePath Parent { get; }
         public Pathy.ChainablePath Root { get; }
@@ -23,6 +24,7 @@ namespace Pathy
         public static Pathy.ChainablePath Temp { get; }
         public Pathy.ChainablePath FindParentWithFileMatching(params string[] wildcards) { }
         public bool HasExtension(string extension) { }
+        public bool HasName(string name) { }
         public Pathy.ChainablePath ToAbsolute() { }
         public object ToAbsolute(Pathy.ChainablePath parentPath) { }
         public System.IO.DirectoryInfo ToDirectoryInfo() { }
@@ -42,6 +44,7 @@ namespace Pathy
         public static void CreateDirectoryRecursively(this Pathy.ChainablePath path) { }
         public static void DeleteFileOrDirectory(this Pathy.ChainablePath path) { }
         public static void MoveFileOrDirectory(this Pathy.ChainablePath sourcePath, Pathy.ChainablePath destinationDirectory, string newName = null) { }
+        public static Pathy.ChainablePath ResolveFile(this Pathy.ChainablePath path, string fileName) { }
     }
     public static class StringExtensions
     {

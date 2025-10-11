@@ -825,4 +825,143 @@ public class ChainablePathSpecs
             .WithMessage("*At least one path must be provided*")
             .WithParameterName("paths");
     }
+
+    [Theory]
+    [InlineData("ChainablePathSpecs.cs", true)]
+    [InlineData("chainablepathspecs.cs", true)]
+    [InlineData("CHAINABLEPATHSPECS.CS", true)]
+    [InlineData("SomeOtherFile.cs", false)]
+    public void Can_check_if_path_has_a_specific_name(string name, bool shouldMatch)
+    {
+        // Arrange
+        var path = Environment.CurrentDirectory.ToPath() / ".." / ".." / ".." / "ChainablePathSpecs.cs";
+
+        // Act
+        bool result = path.HasName(name);
+
+        // Assert
+        result.Should().Be(shouldMatch);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void Checking_for_a_name_requires_a_valid_name(string name)
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "SomeFile.txt";
+
+        // Act
+        Action act = () => path.HasName(name);
+
+        // Assert
+        act.Should().Throw<ArgumentException>().WithMessage("*null*empty*");
+    }
+
+    [Fact]
+    public void Can_get_last_write_time_in_utc_for_a_file()
+    {
+        // Arrange
+        var filePath = testFolder / "test-file.txt";
+        File.WriteAllText(filePath, "Test content");
+        var expectedTime = File.GetLastWriteTimeUtc(filePath.ToString());
+
+        // Act
+        var actualTime = filePath.LastWriteTimeInUtc;
+
+        // Assert
+        actualTime.Should().BeCloseTo(expectedTime, TimeSpan.FromSeconds(1));
+    }
+
+    [Fact]
+    public void Can_get_last_write_time_in_utc_for_a_directory()
+    {
+        // Arrange
+        var dirPath = testFolder / "test-directory";
+        dirPath.CreateDirectoryRecursively();
+        var expectedTime = System.IO.Directory.GetLastWriteTimeUtc(dirPath.ToString());
+
+        // Act
+        var actualTime = dirPath.LastWriteTimeInUtc;
+
+        // Assert
+        actualTime.Should().BeCloseTo(expectedTime, TimeSpan.FromSeconds(1));
+    }
+
+    [Fact]
+    public void Getting_last_write_time_for_non_existent_path_throws()
+    {
+        // Arrange
+        var path = testFolder / "non-existent-file.txt";
+
+        // Act
+        Action act = () => { var _ = path.LastWriteTimeInUtc; };
+
+        // Assert
+        act.Should().Throw<FileNotFoundException>();
+    }
+
+    [Fact]
+    public void Can_resolve_file_when_path_is_the_file()
+    {
+        // Arrange
+        var filePath = testFolder / "test-file.txt";
+        File.WriteAllText(filePath, "Test content");
+
+        // Act
+        var resolvedPath = filePath.ResolveFile("test-file.txt");
+
+        // Assert
+        resolvedPath.Should().Be(filePath);
+    }
+
+    [Fact]
+    public void Can_resolve_file_when_path_is_a_directory_containing_the_file()
+    {
+        // Arrange
+        var filePath = testFolder / "test-file.txt";
+        File.WriteAllText(filePath, "Test content");
+
+        // Act
+        var resolvedPath = testFolder.ResolveFile("test-file.txt");
+
+        // Assert
+        resolvedPath.Should().Be(filePath);
+    }
+
+    [Fact]
+    public void Resolve_file_is_case_insensitive()
+    {
+        // Arrange
+        var filePath = testFolder / "TestFile.txt";
+        File.WriteAllText(filePath, "Test content");
+
+        // Act
+        var resolvedPath = testFolder.ResolveFile("testfile.txt");
+
+        // Assert
+        resolvedPath.Should().Be(filePath);
+    }
+
+    [Fact]
+    public void Resolve_file_returns_empty_when_file_not_found()
+    {
+        // Act
+        var resolvedPath = testFolder.ResolveFile("non-existent-file.txt");
+
+        // Assert
+        resolvedPath.Should().Be(ChainablePath.Empty);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void Resolve_file_requires_a_valid_file_name(string fileName)
+    {
+        // Act
+        Action act = () => testFolder.ResolveFile(fileName);
+
+        // Assert
+        act.Should().Throw<ArgumentException>().WithMessage("*null*empty*");
+    }
 }

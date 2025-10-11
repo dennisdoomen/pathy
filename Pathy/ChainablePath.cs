@@ -330,6 +330,31 @@ namespace Pathy
         public bool IsDirectory => System.IO.Directory.Exists(ToString());
 
         /// <summary>
+        /// Gets the last write time of the file or directory in UTC.
+        /// </summary>
+        /// <exception cref="FileNotFoundException">
+        /// Thrown if the file or directory does not exist.
+        /// </exception>
+        public DateTime LastWriteTimeInUtc
+        {
+            get
+            {
+                if (IsFile)
+                {
+                    return File.GetLastWriteTimeUtc(ToString());
+                }
+                else if (IsDirectory)
+                {
+                    return System.IO.Directory.GetLastWriteTimeUtc(ToString());
+                }
+                else
+                {
+                    throw new FileNotFoundException($"The path '{path}' does not exist.");
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets a <see cref="ChainablePath"/> instance representing the current working directory of the application.
         /// </summary>
         public static ChainablePath Current => From(Environment.CurrentDirectory);
@@ -421,6 +446,28 @@ namespace Pathy
             }
 
             return string.Equals(Extension, extension, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Determines if the current path name (file or directory name) matches the specified name, ignoring case.
+        /// </summary>
+        /// <param name="name">
+        /// The name to compare against.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the current path's name matches the specified name (case-insensitive); otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown if <paramref name="name"/> is null or empty.
+        /// </exception>
+        public bool HasName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("Name cannot be null or empty", nameof(name));
+            }
+
+            return string.Equals(Name, name, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>

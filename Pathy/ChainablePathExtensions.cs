@@ -61,4 +61,53 @@ internal static class ChainablePathExtensions
             Directory.Move(sourcePath, Path.Combine(destinationDirectory.ToString(), newName ?? sourcePath.Name));
         }
     }
+
+    /// <summary>
+    /// Resolves the path to a file by checking if the current path is that file or a directory containing that file.
+    /// </summary>
+    /// <param name="path">The base path to resolve from.</param>
+    /// <param name="fileName">The file name to resolve.</param>
+    /// <returns>
+    /// A <see cref="ChainablePath"/> representing the resolved file path if found; otherwise, <see cref="ChainablePath.Empty"/>.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if <paramref name="fileName"/> is null or empty.
+    /// </exception>
+    public static ChainablePath ResolveFile(this ChainablePath path, string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName))
+        {
+            throw new ArgumentException("File name cannot be null or empty", nameof(fileName));
+        }
+
+        // If the path represents a file and the name matches (case-insensitive), return it
+        if (path.IsFile && path.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase))
+        {
+            return path;
+        }
+
+        // If the path is a directory, search for the file (case-insensitive)
+        if (path.IsDirectory)
+        {
+            // First try direct path match
+            var filePath = path / fileName;
+            if (filePath.FileExists)
+            {
+                return filePath;
+            }
+
+            // Search for the file with case-insensitive comparison
+            var files = Directory.GetFiles(path.ToString());
+            foreach (var file in files)
+            {
+                var fileInfo = new FileInfo(file);
+                if (fileInfo.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return ChainablePath.From(file);
+                }
+            }
+        }
+
+        return ChainablePath.Empty;
+    }
 }
