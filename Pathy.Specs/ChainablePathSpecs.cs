@@ -919,6 +919,99 @@ public class ChainablePathSpecs
     }
 
     [Fact]
+    public void Can_resolve_a_file_when_path_is_the_file_itself()
+    {
+        // Arrange
+        var file = testFolder / "test.txt";
+        File.WriteAllText(file, "content");
+
+        // Act
+        var result = file.ResolveFile("test.txt");
+
+        // Assert
+        result.ToString().Should().Be(file.ToString());
+        result.FileExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Can_resolve_a_file_when_path_is_a_directory_containing_the_file()
+    {
+        // Arrange
+        var file = testFolder / "test.txt";
+        File.WriteAllText(file, "content");
+
+        // Act
+        var result = testFolder.ResolveFile("test.txt");
+
+        // Assert
+        result.ToString().Should().Be(file.ToString());
+        result.FileExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ResolveFile_is_case_insensitive_when_path_is_the_file()
+    {
+        // Arrange
+        var file = testFolder / "Test.txt";
+        File.WriteAllText(file, "content");
+
+        // Act
+        var result = file.ResolveFile("test.TXT");
+
+        // Assert
+        result.ToString().Should().Be(file.ToString());
+        result.FileExists.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ResolveFile_returns_empty_when_file_does_not_exist_in_directory()
+    {
+        // Act
+        var result = testFolder.ResolveFile("nonexistent.txt");
+
+        // Assert
+        result.Should().Be(ChainablePath.Empty);
+    }
+
+    [Fact]
+    public void ResolveFile_returns_empty_when_path_is_a_file_with_different_name()
+    {
+        // Arrange
+        var file = testFolder / "actual.txt";
+        File.WriteAllText(file, "content");
+
+        // Act
+        var result = file.ResolveFile("different.txt");
+
+        // Assert
+        result.Should().Be(ChainablePath.Empty);
+    }
+
+    [Fact]
+    public void ResolveFile_throws_when_fileName_is_null()
+    {
+        // Act
+        var act = () => testFolder.ResolveFile(null);
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*File name cannot be null or empty*")
+            .WithParameterName("fileName");
+    }
+
+    [Fact]
+    public void ResolveFile_throws_when_fileName_is_empty()
+    {
+        // Act
+        var act = () => testFolder.ResolveFile(string.Empty);
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*File name cannot be null or empty*")
+            .WithParameterName("fileName");
+    }
+
+    [Fact]
     public void Can_get_last_write_time_utc_for_file()
     {
         // Arrange
