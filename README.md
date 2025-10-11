@@ -143,6 +143,22 @@ Next to that, Pathy also provides a bunch of extension methods to operate on the
 * `DeleteFileOrDirectory`
 * `MoveFileOrDirectory`
 
+These methods also support operating on collections of `ChainablePath` objects:
+
+```csharp
+// Delete multiple files or directories at once
+var files = new[] { 
+    ChainablePath.Temp / "file1.txt", 
+    ChainablePath.Temp / "file2.txt",
+    ChainablePath.Temp / "dir1" 
+};
+files.DeleteFileOrDirectory();
+
+// Move multiple files to a destination directory
+var filesToMove = (ChainablePath.Current / "source").GlobFiles("*.txt");
+filesToMove.MoveFileOrDirectory(ChainablePath.Current / "destination");
+```
+
 ## Building
 
 To build this repository locally so you can contribute to it, you need the following:
