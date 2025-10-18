@@ -214,6 +214,34 @@ namespace Pathy
             return From(Path.Combine(leftPath.GetValueOrDefault(New), subPath));
         }
 
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        /// <summary>
+        /// Navigates to the parent directory of the specified <see cref="ChainablePath"/> when using the range operator <c>..</c>.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// var path = ChainablePath.Current / .. / .. / "file.txt";
+        /// // Equivalent to: ChainablePath.Current.Parent.Parent / "file.txt"
+        /// </code>
+        /// </example>
+        /// <param name="leftPath">
+        /// The base <see cref="ChainablePath"/> from which to navigate to the parent.
+        /// </param>
+        /// <param name="range">
+        /// The range operator <c>..</c> which indicates navigation to the parent directory.
+        /// </param>
+        /// <returns>
+        /// A new <see cref="ChainablePath"/> instance representing the parent directory of <paramref name="leftPath"/>.
+        /// </returns>
+        /// <remarks>
+        /// This operator only supports the <c>..</c> range operator for navigating to parent directories.
+        /// </remarks>
+        public static ChainablePath operator /(ChainablePath leftPath, Range range)
+        {
+            return leftPath.Parent;
+        }
+#endif
+
         /// <summary>
         /// Adds a raw string to the end of a <see cref="ChainablePath"/> instance.
         /// </summary>
