@@ -228,16 +228,31 @@ namespace Pathy
         /// The base <see cref="ChainablePath"/> from which to navigate to the parent.
         /// </param>
         /// <param name="range">
-        /// The range operator <c>..</c> which indicates navigation to the parent directory.
+        /// The range operator. Only the <c>..</c> range operator (representing all elements) is supported.
         /// </param>
         /// <returns>
         /// A new <see cref="ChainablePath"/> instance representing the parent directory of <paramref name="leftPath"/>.
         /// </returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown if <paramref name="range"/> is not the <c>..</c> range operator.
+        /// </exception>
         /// <remarks>
-        /// This operator only supports the <c>..</c> range operator for navigating to parent directories.
+        /// This operator is designed to work specifically with the <c>..</c> range operator to provide
+        /// a more intuitive syntax for navigating to parent directories. The <c>..</c> operator creates
+        /// a range from the start to the end (0..^0), which this method interprets as "navigate to parent".
+        /// Using any other range value will throw an <see cref="ArgumentException"/>.
         /// </remarks>
         public static ChainablePath operator /(ChainablePath leftPath, Range range)
         {
+            // Validate that the range is the '..' operator (which is Range.All or 0..^0)
+            if (range.Start.Value != 0 || range.Start.IsFromEnd || range.End.Value != 0 || !range.End.IsFromEnd)
+            {
+                throw new ArgumentException(
+                    "Only the '..' range operator is supported for parent directory navigation. " +
+                    "The range operator should be '..' (not a specific range like '1..3').",
+                    nameof(range));
+            }
+
             return leftPath.Parent;
         }
 #endif

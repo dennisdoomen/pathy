@@ -1159,5 +1159,21 @@ public class ChainablePathSpecs
         result.DirectoryName.Should().Be(Environment.CurrentDirectory.ToPath().Parent.Parent.ToString());
         result.Name.Should().Be("file.txt");
     }
+
+    [Fact]
+    public void Range_operator_throws_for_non_all_range()
+    {
+        // Arrange
+        var path = testFolder / "dir1" / "dir2";
+        path.CreateDirectoryRecursively();
+
+        // Act
+        Action act = () => { var _ = path / 1..3; };
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Only the '..' range operator is supported*")
+            .WithParameterName("range");
+    }
 #endif
 }
