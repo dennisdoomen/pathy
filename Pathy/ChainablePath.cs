@@ -239,13 +239,13 @@ namespace Pathy
         /// <remarks>
         /// This operator is designed to work specifically with the <c>..</c> range operator to provide
         /// a more intuitive syntax for navigating to parent directories. The <c>..</c> operator creates
-        /// a range from the start to the end (0..^0), which this method interprets as "navigate to parent".
+        /// a <see cref="Range.All"/> range, which this method interprets as "navigate to parent".
         /// Using any other range value will throw an <see cref="ArgumentException"/>.
         /// </remarks>
         public static ChainablePath operator /(ChainablePath leftPath, Range range)
         {
-            // Validate that the range is the '..' operator (which is Range.All or 0..^0)
-            if (range.Start.Value != 0 || range.Start.IsFromEnd || range.End.Value != 0 || !range.End.IsFromEnd)
+            // Validate that the range is the '..' operator (which is Range.All)
+            if (!Range.All.Equals(range))
             {
                 throw new ArgumentException(
                     "Only the '..' range operator is supported for parent directory navigation. " +
