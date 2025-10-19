@@ -19,6 +19,7 @@ namespace Pathy
     public readonly record struct ChainablePath
 #else
     [global::Microsoft.CodeAnalysis.Embedded]
+    [global::System.Diagnostics.DebuggerNonUserCode]
     internal readonly record struct ChainablePath
 #endif
     {
@@ -359,7 +360,7 @@ namespace Pathy
                 {
                     return System.IO.Directory.GetLastWriteTimeUtc(path);
                 }
-                
+
                 return DateTime.MinValue;
             }
         }
@@ -536,6 +537,7 @@ namespace Pathy
     public static class StringExtensions
 #else
     [global::Microsoft.CodeAnalysis.Embedded]
+    [global::System.Diagnostics.DebuggerNonUserCode]
     internal static class StringExtensions
 #endif
     {
