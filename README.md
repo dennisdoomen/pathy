@@ -114,6 +114,7 @@ Know that `ChainablePath` overrides `Equals` and `GetHashCode`, so you can alway
 Given an instance of `ChainablePath`, you can get a lot of useful information:
 * `Name` returns the full name, but without the directory, whereas `Extension` gives you the extension _including_ the dot.
 * `Directory`, `Parent` or `DirectoryName` give you the (parent) directory of a file or directory.
+* The range operator `..` in newer versions of .NET serves a similar purpose, e.g. `path / .. / "file.txt"`
 * To see if a path is absolute, use `IsRooted`
 * Not sure if a path points to an actual file system entry? Use `IsFile`, `IsDirectory` or `Exists`
 * Want to know the delta between two paths? Use `AsRelativeTo`.
@@ -126,6 +127,28 @@ And if the built-in functionality really isn't enough, you can always call `ToDi
 Other features
 * Build an absolute path from a relative path using `ToAbsolute` to use the current directory as the base or `ToAbsolute(parentPath)` to use something else as the base.
 * Finding the closest parent directory containing a file matching one or more wildcards. For example, given you have a `ChainablePath` pointing to a `.csproj` file, you can then use `FindParentWithFileMatching("*.sln", "*.slnx")` to find the directory containing the `.sln` or `.slnx` file.
+
+### Resolving files
+
+If you have a `ChainablePath` that could represent either a file or a directory, and you want to resolve a specific file name, you can use the `ResolveFile` extension method:
+
+```csharp
+// When the path is a directory containing the file
+var directory = ChainablePath.From("c:/projects/myapp");
+var configFile = directory.ResolveFile("appsettings.json");
+// Returns: c:/projects/myapp/appsettings.json (if it exists)
+
+// When the path is already the file itself
+var filePath = ChainablePath.From("c:/projects/myapp/appsettings.json");
+var resolved = filePath.ResolveFile("appsettings.json");
+// Returns: c:/projects/myapp/appsettings.json (if it exists)
+
+// When the file doesn't exist
+var missing = directory.ResolveFile("missing.txt");
+// Returns: ChainablePath.Empty
+```
+
+The method performs case-insensitive file name matching, so `ResolveFile("CONFIG.JSON")` will match `config.json`.
 
 ### Globbing
 
@@ -163,28 +186,6 @@ files.DeleteFileOrDirectory();
 var filesToMove = (ChainablePath.Current / "source").GlobFiles("*.txt");
 filesToMove.MoveFileOrDirectory(ChainablePath.Current / "destination");
 ```
-
-### Resolving files
-
-If you have a `ChainablePath` that could represent either a file or a directory, and you want to resolve a specific file name, you can use the `ResolveFile` extension method:
-
-```csharp
-// When the path is a directory containing the file
-var directory = ChainablePath.From("c:/projects/myapp");
-var configFile = directory.ResolveFile("appsettings.json");
-// Returns: c:/projects/myapp/appsettings.json (if it exists)
-
-// When the path is already the file itself
-var filePath = ChainablePath.From("c:/projects/myapp/appsettings.json");
-var resolved = filePath.ResolveFile("appsettings.json");
-// Returns: c:/projects/myapp/appsettings.json (if it exists)
-
-// When the file doesn't exist
-var missing = directory.ResolveFile("missing.txt");
-// Returns: ChainablePath.Empty
-```
-
-The method performs case-insensitive file name matching, so `ResolveFile("CONFIG.JSON")` will match `config.json`.
 
 ## Building
 
