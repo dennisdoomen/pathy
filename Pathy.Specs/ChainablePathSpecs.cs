@@ -1085,4 +1085,95 @@ public class ChainablePathSpecs
         // Assert
         actualTime.Should().Be(DateTime.MinValue);
     }
+
+#if NET6_0_OR_GREATER
+    [Fact]
+    public void Can_navigate_to_parent_using_range_operator()
+    {
+        // Arrange
+        var path = testFolder / "dir1" / "dir2" / "dir3";
+        path.CreateDirectoryRecursively();
+
+        // Act
+        var result = path / .. / "file.txt";
+
+        // Assert
+        result.DirectoryName.Should().Be(testFolder + Slash + "dir1" + Slash + "dir2");
+        result.Name.Should().Be("file.txt");
+    }
+
+    [Fact]
+    public void Can_chain_multiple_range_operators_for_parent_navigation()
+    {
+        // Arrange
+        var path = testFolder / "level1" / "level2" / "level3" / "level4";
+        path.CreateDirectoryRecursively();
+
+        // Act
+        var result = path / .. / .. / .. / "file.txt";
+
+        // Assert
+        result.DirectoryName.Should().Be(testFolder + Slash + "level1");
+        result.Name.Should().Be("file.txt");
+    }
+
+    [Fact]
+    public void Range_operator_is_equivalent_to_using_the_parent_property()
+    {
+        // Arrange
+        var path = testFolder / "dir1" / "dir2" / "dir3";
+        path.CreateDirectoryRecursively();
+
+        // Act
+        var usingRangeOperator = path / .. / .. / "file.txt";
+        var usingParentProperty = path.Parent.Parent / "file.txt";
+
+        // Assert
+        usingRangeOperator.Should().Be(usingParentProperty);
+    }
+
+    [Fact]
+    public void Can_mix_range_operator_with_regular_path_operations()
+    {
+        // Arrange
+        var baseDir = testFolder / "project" / "src" / "core";
+        baseDir.CreateDirectoryRecursively();
+
+        var testDir = testFolder / "project" / "tests";
+        testDir.CreateDirectoryRecursively();
+
+        // Act - Navigate from core to tests using range operator
+        var result = baseDir / .. / .. / "tests" / "CoreTests.cs";
+
+        // Assert
+        result.ToString().Should().Be(testFolder + Slash + "project" + Slash + "tests" + Slash + "CoreTests.cs");
+    }
+
+    [Fact]
+    public void Range_operator_works_with_current_path()
+    {
+        // Act
+        var result = ChainablePath.Current / .. / .. / "file.txt";
+
+        // Assert
+        result.DirectoryName.Should().Be(Environment.CurrentDirectory.ToPath().Parent.Parent.ToString());
+        result.Name.Should().Be("file.txt");
+    }
+
+    [Fact]
+    public void Only_two_dots_are_allowed()
+    {
+        // Arrange
+        var path = testFolder / "dir1" / "dir2";
+        path.CreateDirectoryRecursively();
+
+        // Act
+        Action act = () => { var _ = path / 1..3; };
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Only the '..' range operator is supported*")
+            .WithParameterName("range");
+    }
+#endif
 }

@@ -37,6 +37,7 @@ namespace Pathy
         public static string op_Implicit(Pathy.ChainablePath chainablePath) { }
         public static Pathy.ChainablePath op_Implicit(string path) { }
         public static Pathy.ChainablePath operator +(Pathy.ChainablePath leftPath, string additionalPath) { }
+        public static Pathy.ChainablePath operator /(Pathy.ChainablePath leftPath, System.Range range) { }
         public static Pathy.ChainablePath operator /(Pathy.ChainablePath leftPath, string subPath) { }
         public static Pathy.ChainablePath operator /(Pathy.ChainablePath? leftPath, string subPath) { }
     }

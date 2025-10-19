@@ -215,6 +215,47 @@ namespace Pathy
             return From(Path.Combine(leftPath.GetValueOrDefault(New), subPath));
         }
 
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        /// <summary>
+        /// Navigates to the parent directory of the specified <see cref="ChainablePath"/> when using the range operator <c>..</c>.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// var path = ChainablePath.Current / .. / .. / "file.txt";
+        /// // Equivalent to: ChainablePath.Current.Parent.Parent / "file.txt"
+        /// </code>
+        /// </example>
+        /// <param name="leftPath">
+        /// The base <see cref="ChainablePath"/> from which to navigate to the parent.
+        /// </param>
+        /// <param name="range">
+        /// The range operator. Only the <c>..</c> range operator (representing all elements) is supported.
+        /// </param>
+        /// <returns>
+        /// A new <see cref="ChainablePath"/> instance representing the parent directory of <paramref name="leftPath"/>.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown if <paramref name="range"/> is not the <c>..</c> range operator.
+        /// </exception>
+        /// <remarks>
+        /// This operator is designed to work specifically with the <c>..</c> range operator to provide
+        /// a more intuitive syntax for navigating to parent directories.
+        /// </remarks>
+        public static ChainablePath operator /(ChainablePath leftPath, Range range)
+        {
+            // Validate that the range is the '..' operator (which is Range.All)
+            if (!Range.All.Equals(range))
+            {
+                throw new ArgumentException(
+                    "Only the '..' range operator is supported for parent directory navigation. " +
+                    "The range operator should be '..' (not a specific range like '1..3').",
+                    nameof(range));
+            }
+
+            return leftPath.Parent;
+        }
+#endif
+
         /// <summary>
         /// Adds a raw string to the end of a <see cref="ChainablePath"/> instance.
         /// </summary>
