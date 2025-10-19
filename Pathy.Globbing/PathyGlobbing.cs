@@ -17,6 +17,7 @@ namespace Pathy
     public static class ChainablePathGlobbingExtensions
 #else
     [global::Microsoft.CodeAnalysis.Embedded]
+    [global::System.Diagnostics.DebuggerNonUserCode]
     internal static class ChainablePathGlobbingExtensions
 #endif
     {

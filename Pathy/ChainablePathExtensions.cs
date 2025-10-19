@@ -10,6 +10,7 @@ namespace Pathy;
 #if PATHY_PUBLIC
 public static class ChainablePathExtensions
 #else
+[global::System.Diagnostics.DebuggerNonUserCode]
 internal static class ChainablePathExtensions
 #endif
 {
