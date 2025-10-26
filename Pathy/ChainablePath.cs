@@ -359,7 +359,7 @@ namespace Pathy
         /// <summary>
         /// Gets the root directory of the current path.
         /// </summary>
-        public ChainablePath Root => From(Path.GetPathRoot(path));
+        public ChainablePath Root => Path.IsPathRooted(path) ? From(Path.GetPathRoot(path)) : Null;
 
         /// <summary>
         /// Gets a value indicating whether the path represented by the current object points to an existing file.
