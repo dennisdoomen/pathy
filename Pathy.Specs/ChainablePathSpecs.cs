@@ -331,6 +331,16 @@ public class ChainablePathSpecs
         path.Root.ToString().Should().Be(Path.GetPathRoot(path.ToString()));
     }
 
+    [Fact]
+    public void Cannot_get_the_root_of_a_relative_path()
+    {
+        // Act
+        var path = ChainablePath.From("temp/somefile.txt");
+
+        // Assert
+        path.Root.ToString().Should().Be(ChainablePath.Null);
+    }
+
     [Theory]
     [InlineData("C:\\temp\\")]
     [InlineData("C:\\temp")]
