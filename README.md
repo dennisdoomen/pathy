@@ -42,7 +42,7 @@
 Pathy is a tiny source-only library that will allow you to build file and directory paths by chaining together strings like `"c:"`, `"dir1"`, `"dir2"` using
 
 ```csharp
-ChainablePath.New() / "c:" / "dir1" / "dir2";
+ChainablePath.New / "c:" / "dir1" / "dir2";
 ```
 
 Note how the `/` operator is used to chain multiple parts of a path together. This is the primary feature of Pathy. And it doesn't matter if you do that on Linux or Windows. Internally it'll use whatever path separator is suitable.
@@ -88,8 +88,8 @@ There are several ways of doing that.
 
 ```csharp
 // Various ways for constructing a ChainablePath 
-var path = ChainablePath.From("c:") / "my-path" / "to" / "a" /"directory");
-var path = ChainablePath.New() / "c:" / "my-path" / "to" / "a" / "directory";
+var path = ChainablePath.From("c:") / "my-path" / "to" / "a" / "directory";
+var path = ChainablePath.New / "c:" / "my-path" / "to" / "a" / "directory";
 var path = "c:/mypath/to/a/directory".ToPath();
 var path = (ChainablePath)"c:/mypath/to/a/directory";
 
