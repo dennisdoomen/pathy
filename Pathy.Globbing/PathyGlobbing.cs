@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
@@ -71,6 +72,97 @@ namespace Pathy
                 .Files
                 .Select(file => ChainablePath.From(path / file.Path))
                 .ToArray();
+        }
+
+        /// <summary>
+        /// Determines whether this path matches the provided glob pattern.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Unlike <see cref="GlobFiles(ChainablePath, string)"/>, this does not touch the file system at all: the path
+        /// does not need to exist, and no directory is enumerated. The pattern is matched purely against the string
+        /// representation of <paramref name="path"/> (as returned by <see cref="ChainablePath.ToString"/>, which uses
+        /// the platform's directory separator), using
+        /// <see cref="global::Microsoft.Extensions.FileSystemGlobbing.MatcherExtensions.Match(Matcher, string, string)"/>.
+        /// That overload performs a pure in-memory string match (via <c>InMemoryDirectoryInfo</c>) and never
+        /// enumerates or reads from disk. For a rooted/absolute <paramref name="path"/> the pattern is matched
+        /// relative to its drive/volume root (so e.g. <c>src/**/*.cs</c> matches anywhere under that drive); for a
+        /// relative <paramref name="path"/> it is matched relative to the current working directory, same as
+        /// <see cref="GlobFiles(ChainablePath, string)"/> does.
+        /// </para>
+        /// <para>
+        /// This addresses the capability requested (but not delivered as a public API) in the closed issue #35: a way
+        /// to test whether a <see cref="ChainablePath"/> matches a wildcard/glob pattern without listing a directory.
+        /// It is named <c>Matches</c> here (plural-safe, with a multi-pattern overload) rather than reusing the
+        /// originally proposed <c>Match</c> name.
+        /// </para>
+        /// See also <seealso href="https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing"/>
+        /// </remarks>
+        /// <param name="path">The path to test against the glob pattern.</param>
+        /// <param name="globPattern">The glob pattern used to match the path, e.g. **/*.cs or **/bin/**</param>
+        public static bool Matches(this ChainablePath path, string globPattern)
+        {
+            return Matches(path, new[] { globPattern });
+        }
+
+        /// <summary>
+        /// Determines whether this path matches any of the provided glob patterns.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Unlike <see cref="GlobFiles(ChainablePath, string[])"/>, this does not touch the file system at all: the
+        /// path does not need to exist, and no directory is enumerated. The pattern is matched purely against the
+        /// string representation of <paramref name="path"/> (as returned by <see cref="ChainablePath.ToString"/>,
+        /// which uses the platform's directory separator), using
+        /// <see cref="global::Microsoft.Extensions.FileSystemGlobbing.MatcherExtensions.Match(Matcher, string, string)"/>.
+        /// That overload performs a pure in-memory string match (via <c>InMemoryDirectoryInfo</c>) and never
+        /// enumerates or reads from disk. For a rooted/absolute <paramref name="path"/> the pattern is matched
+        /// relative to its drive/volume root (so e.g. <c>src/**/*.cs</c> matches anywhere under that drive); for a
+        /// relative <paramref name="path"/> it is matched relative to the current working directory, same as
+        /// <see cref="GlobFiles(ChainablePath, string[])"/> does.
+        /// </para>
+        /// <para>
+        /// This addresses the capability requested (but not delivered as a public API) in the closed issue #35: a way
+        /// to test whether a <see cref="ChainablePath"/> matches a wildcard/glob pattern without listing a directory.
+        /// It is named <c>Matches</c> here (plural-safe, with this multi-pattern overload) rather than reusing the
+        /// originally proposed <c>Match</c> name. This overload returns <see langword="true"/> if any of the
+        /// provided patterns matches.
+        /// </para>
+        /// See also <seealso href="https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing"/>
+        /// </remarks>
+        /// <param name="path">The path to test against the glob patterns.</param>
+        /// <param name="globPatterns">One or more glob patterns used to match the path, e.g. **/*.cs or **/bin/**</param>
+        /// <exception cref="ArgumentException">Thrown if no glob patterns are provided or if any pattern is null or empty.</exception>
+        public static bool Matches(this ChainablePath path, params string[] globPatterns)
+        {
+            if (globPatterns == null || globPatterns.Length == 0)
+            {
+                throw new ArgumentException("At least one glob pattern must be provided", nameof(globPatterns));
+            }
+
+            foreach (string pattern in globPatterns)
+            {
+                if (string.IsNullOrWhiteSpace(pattern))
+                {
+                    throw new ArgumentException("Glob patterns cannot be null or empty", nameof(globPatterns));
+                }
+            }
+
+            Matcher matcher = new(StringComparison.OrdinalIgnoreCase);
+            foreach (string pattern in globPatterns)
+            {
+                matcher.AddInclude(pattern);
+            }
+
+            string file = path.ToString();
+
+            // Match() never touches disk (Path.IsPathRooted/GetPathRoot are pure string operations), but the
+            // matcher still needs a root to compute file paths relative to. Anchoring to the drive/volume root for
+            // rooted paths ensures patterns like "src/**/*.cs" match wherever they occur on that drive, without
+            // requiring the path (or any directory) to actually exist.
+            string root = Path.IsPathRooted(file) ? Path.GetPathRoot(file) : Directory.GetCurrentDirectory();
+
+            return matcher.Match(root, file).HasMatches;
         }
     }
 }

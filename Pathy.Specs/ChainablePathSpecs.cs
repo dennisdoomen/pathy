@@ -620,7 +620,7 @@ public class ChainablePathSpecs
         temp.CreateDirectoryRecursively();
 
         // Act & Assert
-        var act = () => temp.GlobFiles(new string[0]);
+        var act = () => temp.GlobFiles(Array.Empty<string>());
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*At least one glob pattern must be provided*")
@@ -651,6 +651,125 @@ public class ChainablePathSpecs
 
         // Act & Assert
         var act = () => temp.GlobFiles("**/*.txt", "", "**/*.doc");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
+    // Issue #35 asked for a `Match(wildcard)` method and was closed without shipping a public API. `Matches`
+    // (below) is what actually delivers that capability - purely in-memory, without ever touching the file
+    // system or requiring the path to exist.
+    [Fact]
+    public void An_absolute_path_matches_a_pattern_that_corresponds_to_its_suffix()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "src" / "Pathy" / "ChainablePath.cs";
+
+        // Act & Assert
+        path.Matches("**/*.cs").Should().BeTrue();
+    }
+
+    [Fact]
+    public void An_absolute_path_does_not_match_an_unrelated_pattern()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "src" / "Pathy" / "ChainablePath.cs";
+
+        // Act & Assert
+        path.Matches("**/*.md").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Matches_does_not_require_the_path_to_exist_on_disk()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / Guid.NewGuid().ToString("N") / "does-not-exist.cs";
+
+        // Act & Assert
+        path.Matches("**/*.cs").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Matches_with_multiple_patterns_returns_true_if_any_pattern_matches()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "src" / "Pathy" / "ChainablePath.cs";
+
+        // Act & Assert
+        path.Matches("**/bin/**", "**/obj/**", "**/*.cs").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Matches_with_multiple_patterns_returns_false_if_none_match()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "src" / "Pathy" / "ChainablePath.cs";
+
+        // Act & Assert
+        path.Matches("**/bin/**", "**/obj/**").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Matches_is_case_insensitive()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "src" / "Pathy" / "ChainablePath.cs";
+
+        // Act & Assert
+        path.Matches("**/*.CS").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Matches_with_single_pattern_throws_when_pattern_is_null()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "file.cs";
+
+        // Act & Assert
+        var act = () => path.Matches((string)null);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void Matches_with_multiple_patterns_throws_when_no_patterns_provided()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "file.cs";
+
+        // Act & Assert
+        var act = () => path.Matches(new string[0]);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*At least one glob pattern must be provided*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void Matches_with_multiple_patterns_throws_when_a_pattern_is_null()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "file.cs";
+
+        // Act & Assert
+        var act = () => path.Matches("**/*.cs", null, "**/*.doc");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void Matches_with_multiple_patterns_throws_when_a_pattern_is_empty()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "file.cs";
+
+        // Act & Assert
+        var act = () => path.Matches("**/*.cs", "", "**/*.doc");
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*Glob patterns cannot be null or empty*")
@@ -998,7 +1117,7 @@ public class ChainablePathSpecs
     {
         // Act & Assert
         var act = () =>
-            ChainablePath.FindFirst(new string[0]);
+            ChainablePath.FindFirst(Array.Empty<string>());
 
         // Assert
         act.Should().Throw<ArgumentException>()
@@ -1011,7 +1130,7 @@ public class ChainablePathSpecs
     {
         // Act & Assert
         var act = () =>
-            ChainablePath.FindFirst(new ChainablePath[0]);
+            ChainablePath.FindFirst(Array.Empty<ChainablePath>());
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*At least one path must be provided*")
@@ -1238,7 +1357,7 @@ public class ChainablePathSpecs
         path.CreateDirectoryRecursively();
 
         // Act
-        Action act = () => { var _ = path / 1..3; };
+        Action act = () => { _ = path / 1..3; };
 
         // Assert
         act.Should().Throw<ArgumentException>()
@@ -1246,4 +1365,110 @@ public class ChainablePathSpecs
             .WithParameterName("range");
     }
 #endif
+
+    [Fact]
+    public void Can_convert_an_absolute_path_to_a_file_uri()
+    {
+        // Arrange
+        var path = testFolder / "report.txt";
+
+        // Act
+        var uri = path.ToUri();
+
+        // Assert
+        uri.IsAbsoluteUri.Should().BeTrue();
+        uri.Scheme.Should().Be(Uri.UriSchemeFile);
+        uri.LocalPath.Should().Be(path.ToString());
+    }
+
+    [Fact]
+    public void Cannot_convert_a_relative_path_to_a_uri()
+    {
+        // Arrange
+        ChainablePath path = "relative/path.txt";
+
+        // Act
+        var act = () => path.ToUri();
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*must be absolute*");
+    }
+
+    [Fact]
+    public void Can_round_trip_an_absolute_path_through_to_uri_and_from_uri()
+    {
+        // Arrange
+        var path = testFolder / "report.txt";
+
+        // Act
+        var result = ChainablePath.FromUri(path.ToUri());
+
+        // Assert
+        result.ToString().Should().Be(path.ToString());
+    }
+
+    [Fact]
+    public void Can_round_trip_a_path_with_spaces_and_special_characters()
+    {
+        // Arrange
+        var path = testFolder / "my report (final) #1.txt";
+
+        // Act
+        var uri = path.ToUri();
+        var result = ChainablePath.FromUri(uri);
+
+        // Assert
+        result.ToString().Should().Be(path.ToString());
+    }
+
+    [Fact]
+    public void Can_convert_a_unc_path_to_a_uri_and_back()
+    {
+        // Arrange
+        ChainablePath path = @"\\server\share\file.txt";
+
+        // Act
+        var uri = path.ToUri();
+        var result = ChainablePath.FromUri(uri);
+
+        // Assert
+        uri.IsUnc.Should().BeTrue();
+        uri.Host.Should().Be("server");
+        result.ToString().Should().Be(path.ToString());
+    }
+
+    [Fact]
+    public void From_uri_rejects_a_null_uri()
+    {
+        // Act
+        var act = () => ChainablePath.FromUri(null);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>().WithParameterName("uri");
+    }
+
+    [Fact]
+    public void From_uri_rejects_a_non_file_scheme()
+    {
+        // Act
+        var act = () => ChainablePath.FromUri(new Uri("https://example.com/some/path"));
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*https*")
+            .WithParameterName("uri");
+    }
+
+    [Fact]
+    public void From_uri_rejects_a_relative_uri()
+    {
+        // Act
+        var act = () => ChainablePath.FromUri(new Uri("relative/path.txt", UriKind.Relative));
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*absolute*")
+            .WithParameterName("uri");
+    }
 }
