@@ -81,7 +81,7 @@ public class ChainablePathSpecs
         var path = ChainablePath.From(@"C:\some\file.txt");
 
         // Act
-        string result = path.ToString(format: "whatever", CultureInfo.InvariantCulture);
+        string result = path.ToString("whatever", CultureInfo.InvariantCulture);
 
         // Assert
         result.Should().Be(@"C:\some\file.txt");
@@ -741,7 +741,7 @@ public class ChainablePathSpecs
         var path = ChainablePath.Temp / "file.cs";
 
         // Act & Assert
-        var act = () => path.Matches(new string[0]);
+        var act = () => path.Matches(Array.Empty<string>());
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*At least one glob pattern must be provided*")
