@@ -25,6 +25,11 @@
       </PackageReference>
       </ItemGroup>
 
+    <!-- System.Text.Json is built into the net8.0 shared framework; net472 needs it as an explicit package. -->
+    <ItemGroup Condition="'$(TargetFramework)' != 'net8.0'">
+      <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    </ItemGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\Pathy.Globbing\Pathy.Globbing.csproj" />
       <ProjectReference Include="..\Pathy\Pathy.csproj" />

@@ -7,7 +7,14 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <NuSpecFile>.nuspec</NuSpecFile>
         <NuspecProperties>version=$(Version)</NuspecProperties>
-        <DefineConstants>PATHY_PUBLIC</DefineConstants>
+        <!--
+          PATHY_PUBLIC makes the source-only types public so this project can be built/tested as a
+          standalone assembly. PATHY_SYSTEM_TEXT_JSON is defined here so this repo's own build and test suite
+          can compile and exercise ChainablePathJsonConverter. Neither symbol is defined for consumers: the
+          .cs files are packed as contentFiles and compiled unmodified into each consumer's own project, so
+          consumers who want the JSON converter must opt in by defining PATHY_SYSTEM_TEXT_JSON themselves.
+        -->
+        <DefineConstants>PATHY_PUBLIC;PATHY_SYSTEM_TEXT_JSON</DefineConstants>
         <NoWarn>1591;1573</NoWarn>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -19,6 +26,17 @@
     <None Include="..\PackageIcon.png" Pack="true" Visible="false" PackagePath="" />
     <None Include="..\LICENSE" Pack="true" PackagePath=""/>
     <None Include="..\README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+  <!--
+    System.Text.Json is built into the shared framework for net8.0, but netstandard2.0, netstandard2.1 and
+    net47 need it as an explicit package reference. This is only added here so this repo's own build/test
+    suite can compile ChainablePathJsonConverter (see PATHY_SYSTEM_TEXT_JSON above); it is NOT packed as a
+    dependency of the Pathy NuGet package, because Pathy.csproj only produces the internal reference/test
+    assembly, not the contentFiles package itself.
+  -->
+  <ItemGroup Label="System.Text.Json for non-net8.0 targets" Condition="'$(TargetFramework)' != 'net8.0'">
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup Label="Internals visible to">

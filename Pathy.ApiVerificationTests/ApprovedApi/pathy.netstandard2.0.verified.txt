@@ -1,6 +1,8 @@
 ﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Pathy.Specs")]
 namespace Pathy
 {
+    [System.ComponentModel.TypeConverter(typeof(Pathy.ChainablePathTypeConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(Pathy.ChainablePathJsonConverter))]
     public readonly struct ChainablePath : System.IEquatable<Pathy.ChainablePath>
     {
         public Pathy.ChainablePath Directory { get; }
@@ -47,6 +49,20 @@ namespace Pathy
         public static void MoveFileOrDirectory(this System.Collections.Generic.IEnumerable<Pathy.ChainablePath> sourcePaths, Pathy.ChainablePath destinationDirectory) { }
         public static void MoveFileOrDirectory(this Pathy.ChainablePath sourcePath, Pathy.ChainablePath destinationDirectory, string newName = null) { }
         public static Pathy.ChainablePath ResolveFile(this Pathy.ChainablePath path, string fileName) { }
+    }
+    public sealed class ChainablePathJsonConverter : System.Text.Json.Serialization.JsonConverter<Pathy.ChainablePath>
+    {
+        public ChainablePathJsonConverter() { }
+        public override Pathy.ChainablePath Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options) { }
+        public override void Write(System.Text.Json.Utf8JsonWriter writer, Pathy.ChainablePath value, System.Text.Json.JsonSerializerOptions options) { }
+    }
+    public sealed class ChainablePathTypeConverter : System.ComponentModel.TypeConverter
+    {
+        public ChainablePathTypeConverter() { }
+        public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Type sourceType) { }
+        public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Type? destinationType) { }
+        public override object? ConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value) { }
+        public override object? ConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object? value, System.Type destinationType) { }
     }
     public static class StringExtensions
     {
