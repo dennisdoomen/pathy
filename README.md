@@ -165,6 +165,15 @@ ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.js
 ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.txt", "**/*.md", "**/*.json");
 ```
 
+The same package also provides `Matches`, which tests whether a path matches a glob pattern without touching
+the file system at all - the path doesn't need to exist and no directory is enumerated:
+
+```csharp
+changedFile.Matches("**/*.cs");                 // true for src/Pathy/ChainablePath.cs
+changedFile.Matches("**/bin/**", "**/obj/**");  // filter out build output
+var relevant = changedFiles.Where(x => x.Matches("src/**/*.cs")).ToArray();
+```
+
 ### File system operations
 
 Next to that, Pathy also provides a bunch of extension methods to operate on the file-system:

@@ -5,5 +5,7 @@ namespace Pathy
     {
         public static Pathy.ChainablePath[] GlobFiles(this Pathy.ChainablePath path, string globPattern) { }
         public static Pathy.ChainablePath[] GlobFiles(this Pathy.ChainablePath path, params string[] globPatterns) { }
+        public static bool Matches(this Pathy.ChainablePath path, string globPattern) { }
+        public static bool Matches(this Pathy.ChainablePath path, params string[] globPatterns) { }
     }
 }
