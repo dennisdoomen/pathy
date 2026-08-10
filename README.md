@@ -26,6 +26,7 @@
 
 <a href="#about">About</a> •
 <a href="#how-to-use-it">How To Use</a> •
+<a href="#migrating-from-pathcombine-fileinfo-or-nukes-absolutepath">Migration Guide</a> •
 <a href="#download">Download</a> •
 <a href="#contributors">Contributors</a> •
 <a href="#versioning">Versioning</a> •
@@ -186,6 +187,69 @@ files.DeleteFileOrDirectory();
 var filesToMove = (ChainablePath.Current / "source").GlobFiles("*.txt");
 filesToMove.MoveFileOrDirectory(ChainablePath.Current / "destination");
 ```
+
+## Migrating from `Path.Combine`, `FileInfo` or Nuke's `AbsolutePath`
+
+This section helps you translate code that uses `Path.Combine`/`FileInfo`/`DirectoryInfo`, or Nuke's `AbsolutePath`, into the equivalent `ChainablePath` code.
+
+### Coming from `Path.Combine`, `FileInfo` and `DirectoryInfo`
+
+| What you did before | What you do with Pathy |
+|---|---|
+| `Path.Combine("c:", "dir1", "dir2")` | `ChainablePath.From("c:") / "dir1" / "dir2"` or `ChainablePath.New / "c:" / "dir1" / "dir2"` |
+| `Path.Combine(path, "sub") + "2"` | `path / "sub" + "2"` |
+| `Directory.GetCurrentDirectory()` | `ChainablePath.Current` |
+| `Path.GetTempPath()` | `ChainablePath.Temp` |
+| `Path.GetFileName(path)` | `path.Name` |
+| `Path.GetExtension(path)` | `path.Extension` |
+| `Path.GetDirectoryName(path)` | `path.Directory` or `path.DirectoryName` (string) |
+| `Path.IsPathRooted(path)` | `path.IsRooted` |
+| `Path.GetPathRoot(path)` | `path.Root` |
+| `Path.GetFullPath(path)` | `path.ToAbsolute()` or `path.ToAbsolute(parentPath)` |
+| `File.Exists(path)` | `path.FileExists` or `path.IsFile` |
+| `Directory.Exists(path)` | `path.DirectoryExists` or `path.IsDirectory` |
+| `File.Exists(path) \|\| Directory.Exists(path)` | `path.Exists` |
+| `Directory.CreateDirectory(path)` | `path.CreateDirectoryRecursively()` |
+| `File.Delete(path)` / `Directory.Delete(path, true)` | `path.DeleteFileOrDirectory()` |
+| `File.Move(source, dest)` / `Directory.Move(source, dest)` | `sourcePath.MoveFileOrDirectory(destinationDirectory)` |
+| `File.GetLastWriteTimeUtc(path)` / `Directory.GetLastWriteTimeUtc(path)` | `path.LastWriteTimeUtc` |
+| `new FileInfo(path)` | `path.ToFileInfo()` |
+| `new DirectoryInfo(path)` | `path.ToDirectoryInfo()` |
+| `path.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)` | `path.HasExtension(".txt")` or `path.HasExtension("txt")` |
+| `string.Equals(Path.GetFileName(path), "MyFile.txt", StringComparison.OrdinalIgnoreCase)` | `path.HasName("MyFile.txt")` |
+| Manually walking up parent directories to find a file | `path.FindParentWithFileMatching("*.sln", "*.slnx")` |
+| Manually computing a relative path between two paths | `path.AsRelativeTo(basePath)` |
+| Manually checking whether a directory contains a specific file, case-insensitively | `directory.ResolveFile("appsettings.json")` |
+
+A `ChainablePath` can be implicitly cast to and from a `string`, so you can pass it directly to any API that still expects a plain `string`:
+
+```csharp
+string rawPath = path;
+ChainablePath path = "c:/mypath/to/a/directory";
+```
+
+### Coming from Nuke's `AbsolutePath`
+
+Pathy was heavily inspired by [Nuke](https://nuke.build/)'s `AbsolutePath`, so most of the syntax will already feel familiar. The main differences are the entry points and a couple of naming choices.
+
+| What you did with Nuke | What you do with Pathy |
+|---|---|
+| `(AbsolutePath)"c:/dir1/dir2"` | `(ChainablePath)"c:/dir1/dir2"` or `"c:/dir1/dir2".ToPath()` |
+| `NukeBuild.RootDirectory / "dir1" / "dir2"` | `ChainablePath.From("c:") / "dir1" / "dir2"` |
+| `EnvironmentInfo.WorkingDirectory` | `ChainablePath.Current` |
+| `path.Parent` | `path.Parent` or `path / ..` |
+| `path / ".." / ".."` | `path / .. / ..` |
+| `path.Name` / `path.NameWithoutExtension` | `path.Name` / `Path.GetFileNameWithoutExtension(path.Name)` |
+| `path.Extension` | `path.Extension` |
+| `path.FileExists()` | `path.FileExists` or `path.IsFile` (property, not method) |
+| `path.DirectoryExists()` | `path.DirectoryExists` or `path.IsDirectory` (property, not method) |
+| `path.GlobFiles("**/*.json")` | `path.GlobFiles("**/*.json")` (requires the `Pathy.Globbing` package) |
+| `path.CreateOrCleanDirectory()` | `path.CreateDirectoryRecursively()` followed by `path.DeleteFileOrDirectory()` if you need to clean it first |
+| `path.DeleteFile()` / `path.DeleteDirectory()` | `path.DeleteFileOrDirectory()` |
+| `path.MoveToDirectory(destination)` | `path.MoveFileOrDirectory(destination)` |
+| `path.GetRelativePathTo(basePath)` | `path.AsRelativeTo(basePath)` |
+
+Unlike Nuke's `AbsolutePath`, Pathy's `ChainablePath` is not restricted to absolute paths — it can represent both relative and absolute paths, and ships without any dependency on the Nuke build system, so you can use it in application and library code, not just build scripts.
 
 ## Building
 
