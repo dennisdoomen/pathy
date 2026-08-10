@@ -25,6 +25,7 @@ namespace Pathy
 #if PATHY_SYSTEM_TEXT_JSON
     [JsonConverter(typeof(ChainablePathJsonConverter))]
 #endif
+    [global::System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
     public readonly record struct ChainablePath : IFormattable, ISpanFormattable
 #else
     [global::Microsoft.CodeAnalysis.Embedded]
@@ -33,6 +34,7 @@ namespace Pathy
 #if PATHY_SYSTEM_TEXT_JSON
     [JsonConverter(typeof(ChainablePathJsonConverter))]
 #endif
+    [global::System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
     internal readonly record struct ChainablePath : IFormattable, ISpanFormattable
 #endif
 #else
@@ -41,6 +43,7 @@ namespace Pathy
 #if PATHY_SYSTEM_TEXT_JSON
     [JsonConverter(typeof(ChainablePathJsonConverter))]
 #endif
+    [global::System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
     public readonly record struct ChainablePath : IFormattable
 #else
     [global::Microsoft.CodeAnalysis.Embedded]
@@ -49,6 +52,7 @@ namespace Pathy
 #if PATHY_SYSTEM_TEXT_JSON
     [JsonConverter(typeof(ChainablePathJsonConverter))]
 #endif
+    [global::System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
     internal readonly record struct ChainablePath : IFormattable
 #endif
 #endif
@@ -59,6 +63,12 @@ namespace Pathy
         {
             this.path = path;
         }
+
+        /// <summary>
+        /// Builds the value shown by the debugger for this instance, based solely on the stored path so that
+        /// it has no side effects and never touches the file system.
+        /// </summary>
+        private string DebuggerDisplayValue => path.Length == 0 ? "<empty>" : path;
 
         /// <summary>
         /// Represents an empty <see cref="ChainablePath"/> instance.

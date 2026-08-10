@@ -2,6 +2,7 @@
 namespace Pathy
 {
     [System.ComponentModel.TypeConverter(typeof(Pathy.ChainablePathTypeConverter))]
+    [System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
     [System.Text.Json.Serialization.JsonConverter(typeof(Pathy.ChainablePathJsonConverter))]
     public readonly struct ChainablePath : System.IEquatable<Pathy.ChainablePath>, System.IFormattable, System.ISpanFormattable
     {

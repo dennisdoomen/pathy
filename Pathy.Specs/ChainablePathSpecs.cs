@@ -1367,6 +1367,47 @@ public class ChainablePathSpecs
 #endif
 
     [Fact]
+    public void Debugger_display_shows_the_path_for_a_regular_path()
+    {
+        // Arrange
+        var path = ChainablePath.From("temp/somefile.txt");
+
+        // Act
+        string debuggerDisplay = GetDebuggerDisplayValue(path);
+
+        // Assert
+        debuggerDisplay.Should().Be(path.ToString());
+    }
+
+    [Fact]
+    public void Debugger_display_shows_a_placeholder_for_an_empty_path()
+    {
+        // Act
+        string debuggerDisplay = GetDebuggerDisplayValue(ChainablePath.Empty);
+
+        // Assert
+        debuggerDisplay.Should().Be("<empty>");
+    }
+
+    [Fact]
+    public void Debugger_display_shows_a_placeholder_for_a_null_path()
+    {
+        // Act
+        string debuggerDisplay = GetDebuggerDisplayValue(ChainablePath.Null);
+
+        // Assert
+        debuggerDisplay.Should().Be("<empty>");
+    }
+
+    private static string GetDebuggerDisplayValue(ChainablePath path)
+    {
+        PropertyInfo property = typeof(ChainablePath).GetProperty("DebuggerDisplayValue",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+
+        return (string)property!.GetValue(path)!;
+    }
+
+    [Fact]
     public void Can_convert_an_absolute_path_to_a_file_uri()
     {
         // Arrange
