@@ -1,7 +1,7 @@
 ﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Pathy.Specs")]
 namespace Pathy
 {
-    public readonly struct ChainablePath : System.IEquatable<Pathy.ChainablePath>
+    public readonly struct ChainablePath : System.IEquatable<Pathy.ChainablePath>, System.IFormattable, System.ISpanFormattable
     {
         public Pathy.ChainablePath Directory { get; }
         public bool DirectoryExists { get; }
@@ -31,6 +31,8 @@ namespace Pathy
         public System.IO.DirectoryInfo ToDirectoryInfo() { }
         public System.IO.FileInfo ToFileInfo() { }
         public override string ToString() { }
+        public string ToString(string? format, System.IFormatProvider? formatProvider) { }
+        public bool TryFormat(System.Span<char> destination, out int charsWritten, System.ReadOnlySpan<char> format, System.IFormatProvider? provider) { }
         public static Pathy.ChainablePath FindFirst(params Pathy.ChainablePath[] paths) { }
         public static Pathy.ChainablePath FindFirst(params string[] paths) { }
         public static Pathy.ChainablePath From(string path) { }
