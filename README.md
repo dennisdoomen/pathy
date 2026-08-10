@@ -133,6 +133,7 @@ Given an instance of `ChainablePath`, you can get a lot of useful information:
 * To determine if a file has a case-insensitive extension, use `HasExtension(".txt")` or `HasExtension("txt")`.
 * To check if a path has a specific file or directory name (case-insensitive), use `HasName("MyFile.txt")`.
 * Get the last write time in UTC using `LastWriteTimeUtc` for both files and directories.
+* To do a best-effort check for characters that are invalid on the current platform, use `IsValid` (see [Edge cases](#edge-cases-invalid-characters-long-paths-and-unc-paths) below).
 
 And if the built-in functionality really isn't enough, you can always call `ToDirectoryInfo` or `ToFileInfo` to continue with an instance of `DirectoryInfo` and `FileInfo`.
 
@@ -182,6 +183,22 @@ public class MyOptions
 ```
 
 Serialized paths are just platform-specific strings, so round-tripping a Windows-style path on Linux (or vice versa) is up to you; the converter performs no path translation.
+
+### Edge cases: invalid characters, long paths and UNC paths
+
+Pathy does not validate or normalize a path's content beyond combining segments and resolving `.` / `..` traversals. This has some consequences worth knowing about:
+
+* **Invalid characters.** `ChainablePath.From` and the `/` and `+` operators do not check whether a segment contains characters that are invalid on the current platform (e.g. `<`, `>`, `|`, `?`, `*` or control characters on Windows). Constructing such a path never throws; the invalid characters are simply carried through, and any failure will happen later, when the path is actually used to access the file system (e.g. via `File.Exists`, `CreateDirectoryRecursively`, etc.). If you want to check upfront, use `IsValid`:
+  ```csharp
+  var candidate = downloadDirectory / userSuppliedName;
+  if (!candidate.IsValid)
+  {
+      return BadRequest("That file name cannot be used on this system.");
+  }
+  ```
+  `IsValid` is a **best-effort** check based on `Path.GetInvalidPathChars()` and `Path.GetInvalidFileNameChars()` for the current platform. It does not check things like reserved device names (`CON`, `NUL`, ...), trailing dots/spaces, or file system-specific length limits, so a path can still fail to be created even when `IsValid` returns `true`, and (rarely) the reverse.
+* **Long paths.** Pathy passes paths through unchanged, including ones longer than the traditional Windows `MAX_PATH` (260 characters). Whether such a path works depends entirely on the host: modern .NET (Core/5+) and Windows with long path support enabled handle it transparently, while older configurations may not. If you prepend the `\\?\` extended-length prefix yourself (e.g. `ChainablePath.From(@"\\?\C:\very\long\path")`), Pathy keeps that prefix intact while you chain additional segments onto it with `/`.
+* **UNC paths.** A path like `\\server\share\folder` is treated as rooted (`IsRooted` returns `true`), and `Root` returns the server-and-share part (`\\server\share`), not just the server. Walking up the hierarchy with `Parent` (or `Directory`) stops at that share root and then returns `ChainablePath.Empty`, exactly like walking up from a drive-letter root (e.g. `C:\`) does — it does not throw and it does not walk further up to the bare server name. `AsRelativeTo` works the same way as for any other rooted path, as long as both paths share the same root.
 
 ### Globbing
 
