@@ -91,7 +91,7 @@ public class ChainablePathExtensionSpecs
         File.WriteAllText(file, "Hello World!");
 
         // Act
-        var act = () => file.MoveFileOrDirectory(testFolder / "SomeDestination", newName: "");
+        var act = () => file.MoveFileOrDirectory(testFolder / "SomeDestination", "");
 
         // Assert
         act.Should().Throw<ArgumentException>()

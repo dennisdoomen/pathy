@@ -5,21 +5,23 @@
     <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1900;NU1902;NU1903</WarningsNotAsErrors> <!-- disable EOL warnings -->
     <NoWarn>1591;1573</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- The single target framework the analyzers run against. Keep this in sync with the newest TFM the projects build. -->
+    <AnalyzerTargetFramework>net8.0</AnalyzerTargetFramework>
   </PropertyGroup>
 
   <!-- To reduce build times, we only enable analyzers for the newest TFM -->
-  <PropertyGroup Condition="'$(TargetFramework)' != 'net6.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' != '$(AnalyzerTargetFramework)'">
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
     <RunAnalyzers>false</RunAnalyzers>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(AnalyzerTargetFramework)'">
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>7.0</AnalysisLevel>
     <AnalysisMode>All</AnalysisMode>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == '$(AnalyzerTargetFramework)'">
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

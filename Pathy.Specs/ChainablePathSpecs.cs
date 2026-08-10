@@ -560,7 +560,7 @@ public class ChainablePathSpecs
         temp.CreateDirectoryRecursively();
 
         // Act & Assert
-        var act = () => temp.GlobFiles(new string[0]);
+        var act = () => temp.GlobFiles(Array.Empty<string>());
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*At least one glob pattern must be provided*")
@@ -1057,7 +1057,7 @@ public class ChainablePathSpecs
     {
         // Act & Assert
         var act = () =>
-            ChainablePath.FindFirst(new string[0]);
+            ChainablePath.FindFirst(Array.Empty<string>());
 
         // Assert
         act.Should().Throw<ArgumentException>()
@@ -1070,7 +1070,7 @@ public class ChainablePathSpecs
     {
         // Act & Assert
         var act = () =>
-            ChainablePath.FindFirst(new ChainablePath[0]);
+            ChainablePath.FindFirst(Array.Empty<ChainablePath>());
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*At least one path must be provided*")
@@ -1297,7 +1297,7 @@ public class ChainablePathSpecs
         path.CreateDirectoryRecursively();
 
         // Act
-        Action act = () => { var _ = path / 1..3; };
+        Action act = () => { _ = path / 1..3; };
 
         // Assert
         act.Should().Throw<ArgumentException>()
