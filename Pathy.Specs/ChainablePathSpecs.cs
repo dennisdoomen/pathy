@@ -1512,4 +1512,162 @@ public class ChainablePathSpecs
             .WithMessage("*absolute*")
             .WithParameterName("uri");
     }
+
+    [Fact]
+    public void A_UNC_path_is_rooted()
+    {
+        // Act
+        var path = ChainablePath.From(@"\\server\share\folder");
+
+        // Assert
+        path.IsRooted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void The_root_of_a_UNC_path_is_the_server_and_share()
+    {
+        // Act
+        var path = ChainablePath.From(@"\\server\share\folder\sub");
+
+        // Assert
+        path.Root.ToString().Should().Be(@"\\server\share");
+    }
+
+    [Fact]
+    public void Walking_up_a_UNC_path_stops_at_the_share()
+    {
+        // Act
+        var path = ChainablePath.From(@"\\server\share\folder");
+
+        // Assert
+        path.Parent.ToString().Should().Be(@"\\server\share");
+        path.Parent.Parent.Should().Be(ChainablePath.Empty);
+    }
+
+    [Fact]
+    public void Walking_up_a_rooted_drive_letter_path_stops_at_the_drive()
+    {
+        // Act
+        var path = ChainablePath.From(@"C:\");
+
+        // Assert
+        path.Parent.Should().Be(ChainablePath.Empty);
+    }
+
+#if NET6_0_OR_GREATER
+    [Fact]
+    public void Can_make_a_UNC_path_relative_to_its_share()
+    {
+        // Act
+        var path = ChainablePath.From(@"\\server\share\folder");
+        var relative = path.AsRelativeTo(ChainablePath.From(@"\\server\share"));
+
+        // Assert
+        relative.ToString().Should().Be("folder");
+    }
+#endif
+
+    [Fact]
+    public void Long_paths_are_passed_through_unchanged()
+    {
+        // Arrange
+        string longSegment = new string('a', 300);
+
+        // Act
+        var path = ChainablePath.From("C:\\temp") / longSegment;
+
+        // Assert
+        path.ToString().Length.Should().BeGreaterThan(260);
+        path.Name.Should().Be(longSegment);
+    }
+
+    [Fact]
+    public void Can_build_a_path_using_the_extended_length_prefix()
+    {
+        // Act
+        var path = ChainablePath.From(@"\\?\C:\temp");
+
+        // Assert
+        path.IsRooted.Should().BeTrue();
+        path.ToString().Should().StartWith(@"\\?\C:");
+    }
+
+    [Fact]
+    public void Chaining_onto_an_extended_length_prefixed_path_keeps_the_prefix()
+    {
+        // Act
+        var path = ChainablePath.From(@"\\?\C:\temp") / "sub" / "file.txt";
+
+        // Assert
+        path.ToString().Should().Be(@"\\?\C:\temp\sub\file.txt");
+    }
+
+    [Theory]
+    [InlineData("file|name.txt")]
+    [InlineData("file?name.txt")]
+    [InlineData("file*name.txt")]
+    [InlineData("file<name.txt")]
+    [InlineData("file>name.txt")]
+    [InlineData("file\"name.txt")]
+    public void Constructing_a_path_with_an_invalid_character_does_not_throw(string invalidName)
+    {
+        // Act
+        var act = () => ChainablePath.From("C:\\temp") / invalidName;
+
+        // Assert
+        act.Should().NotThrow("Pathy does not validate characters at construction time");
+    }
+
+    [Theory]
+    [InlineData("file|name.txt")]
+    [InlineData("file?name.txt")]
+    [InlineData("file*name.txt")]
+    [InlineData("file<name.txt")]
+    [InlineData("file>name.txt")]
+    [InlineData("file\"name.txt")]
+    public void A_path_with_an_invalid_character_is_reported_as_not_valid(string invalidName)
+    {
+        // Act
+        var path = ChainablePath.From("C:\\temp") / invalidName;
+
+        // Assert
+        path.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void A_regular_path_is_reported_as_valid()
+    {
+        // Act
+        var path = ChainablePath.From("C:\\temp") / "my-file.txt";
+
+        // Assert
+        path.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_UNC_path_is_reported_as_valid()
+    {
+        // Act
+        var path = ChainablePath.From(@"\\server\share\folder");
+
+        // Assert
+        path.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_drive_letter_root_is_not_mistaken_for_an_invalid_colon()
+    {
+        // Act
+        var path = ChainablePath.From("C:\\temp\\file.txt");
+
+        // Assert
+        path.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Empty_is_not_a_valid_path()
+    {
+        // Act & Assert
+        ChainablePath.Empty.IsValid.Should().BeFalse();
+    }
 }
