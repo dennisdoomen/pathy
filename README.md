@@ -165,6 +165,14 @@ ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.js
 ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.txt", "**/*.md", "**/*.json");
 ```
 
+If you only need to inspect part of the result, e.g. to find the first match or to process files one at a time, use `EnumerateFiles` instead, which returns `IEnumerable<ChainablePath>`:
+
+```csharp
+ChainablePath? firstMatch = (ChainablePath.Current / "Artifacts").EnumerateFiles("**/*.json").FirstOrDefault();
+```
+
+Note that the underlying `Matcher` from `Microsoft.Extensions.FileSystemGlobbing` walks the whole directory tree and collects all matches before returning, so `EnumerateFiles` doesn't reduce the amount of file-system work compared to `GlobFiles`. It mainly avoids an unnecessary array allocation and allows LINQ-style early-exit chaining. Also, because the sequence is lazily produced, enumerating it more than once repeats the full underlying directory walk each time.
+
 ### File system operations
 
 Next to that, Pathy also provides a bunch of extension methods to operate on the file-system:

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using Xunit;
@@ -591,6 +592,133 @@ public class ChainablePathSpecs
 
         // Act & Assert
         var act = () => temp.GlobFiles("**/*.txt", "", "**/*.doc");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void Can_find_files_using_globbing_patterns_lazily()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1" / "dir2" / "dir3" / "file.txt";
+
+        temp.CreateDirectoryRecursively();
+        File.WriteAllText(temp / "file.txt", "Hello World!");
+        File.WriteAllText(temp / "file2.txt", "Hello World!");
+        File.WriteAllText(temp / "file3.doc", "Hello World!");
+
+        // Act
+        var files = (ChainablePath.Temp / "dir1").EnumerateFiles("**/*.txt");
+
+        // Assert
+        files.Should().BeEquivalentTo([
+            temp / "file.txt",
+            temp / "file2.txt"
+        ], options => options.ComparingRecordsByValue());
+    }
+
+    [Fact]
+    public void Can_find_files_using_multiple_globbing_patterns_lazily()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1" / "dir2" / "dir3" / "file.txt";
+
+        temp.CreateDirectoryRecursively();
+        File.WriteAllText(temp / "file.txt", "Hello World!");
+        File.WriteAllText(temp / "file2.txt", "Hello World!");
+        File.WriteAllText(temp / "file3.doc", "Hello World!");
+        File.WriteAllText(temp / "file4.md", "# Markdown");
+
+        // Act
+        var files = (ChainablePath.Temp / "dir1").EnumerateFiles("**/*.txt", "**/*.doc");
+
+        // Assert
+        files.Should().BeEquivalentTo([
+            temp / "file.txt",
+            temp / "file2.txt",
+            temp / "file3.doc"
+        ], options => options.ComparingRecordsByValue());
+    }
+
+    [Fact]
+    public void EnumerateFiles_returns_the_same_results_as_GlobFiles()
+    {
+        // Arrange
+        var baseDir = testFolder / "EnumerateVsGlob";
+        var deepDir = baseDir / "level1" / "level2";
+        deepDir.CreateDirectoryRecursively();
+
+        File.WriteAllText(baseDir / "root.txt", "Root");
+        File.WriteAllText(baseDir / "root.md", "# Root");
+        File.WriteAllText(deepDir / "deep.txt", "Deep");
+        File.WriteAllText(deepDir / "deep.json", "{}");
+
+        // Act
+        var globbed = baseDir.GlobFiles("**/*.txt", "**/*.json");
+        var enumerated = baseDir.EnumerateFiles("**/*.txt", "**/*.json");
+
+        // Assert
+        enumerated.Should().BeEquivalentTo(globbed, options => options.ComparingRecordsByValue());
+    }
+
+    [Fact]
+    public void EnumerateFiles_supports_partial_enumeration_with_FirstOrDefault()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1" / "dir2" / "dir3" / "file.txt";
+
+        temp.CreateDirectoryRecursively();
+        File.WriteAllText(temp / "file.txt", "Hello World!");
+        File.WriteAllText(temp / "file2.txt", "Hello World!");
+
+        // Act
+        var act = () => (ChainablePath.Temp / "dir1").EnumerateFiles("**/*.txt").FirstOrDefault();
+
+        // Assert
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnumerateFiles_with_multiple_patterns_throws_when_no_patterns_provided()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.EnumerateFiles(new string[0]);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*At least one glob pattern must be provided*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void EnumerateFiles_with_multiple_patterns_throws_when_pattern_is_null()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.EnumerateFiles("**/*.txt", null, "**/*.doc");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void EnumerateFiles_with_multiple_patterns_throws_when_pattern_is_empty()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.EnumerateFiles("**/*.txt", "", "**/*.doc");
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*Glob patterns cannot be null or empty*")

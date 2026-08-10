@@ -3,6 +3,8 @@ namespace Pathy
 {
     public static class ChainablePathGlobbingExtensions
     {
+        public static System.Collections.Generic.IEnumerable<Pathy.ChainablePath> EnumerateFiles(this Pathy.ChainablePath path, string globPattern) { }
+        public static System.Collections.Generic.IEnumerable<Pathy.ChainablePath> EnumerateFiles(this Pathy.ChainablePath path, params string[] globPatterns) { }
         public static Pathy.ChainablePath[] GlobFiles(this Pathy.ChainablePath path, string globPattern) { }
         public static Pathy.ChainablePath[] GlobFiles(this Pathy.ChainablePath path, params string[] globPatterns) { }
     }
