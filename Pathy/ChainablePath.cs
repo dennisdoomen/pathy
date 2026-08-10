@@ -608,9 +608,14 @@ namespace Microsoft.CodeAnalysis
     /// <summary>
     /// A special attribute recognized by Roslyn, that marks a type as "embedded", meaning it won't ever be visible from other assemblies.
     /// </summary>
-    [AttributeUsage(AttributeTargets.All)]
-    [ExcludeFromCodeCoverage]
-    internal sealed class EmbeddedAttribute : Attribute
+    /// <remarks>
+    /// It is declared as <c>partial</c> so that a consumer that also uses another source-only package declaring this same
+    /// attribute (such as Reflectify) ends up with one merged type instead of a duplicate type error. For the parts to merge,
+    /// every declaration must have the same shape, so this one deliberately carries no type-level attributes. Adding
+    /// <c>[AttributeUsage]</c> back would break the merge with a duplicate attribute error, and it is redundant anyway because
+    /// <see cref="AttributeTargets.All"/> is already the default.
+    /// </remarks>
+    internal sealed partial class EmbeddedAttribute : Attribute
     {
     }
 }
