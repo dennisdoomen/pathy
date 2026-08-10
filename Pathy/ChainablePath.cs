@@ -90,6 +90,42 @@ namespace Pathy
         }
 
         /// <summary>
+        /// Creates a new instance of <see cref="ChainablePath"/> from a <c>file://</c> <see cref="Uri"/>.
+        /// </summary>
+        /// <param name="uri">
+        /// An absolute <see cref="Uri"/> using the <c>file</c> scheme.
+        /// </param>
+        /// <returns>
+        /// A <see cref="ChainablePath"/> object representing the local path denoted by the <paramref name="uri"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if the <paramref name="uri"/> is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the <paramref name="uri"/> is not absolute or does not use the <c>file</c> scheme.
+        /// </exception>
+        public static ChainablePath FromUri(Uri uri)
+        {
+            if (uri is null)
+            {
+                throw new ArgumentNullException(nameof(uri));
+            }
+
+            if (!uri.IsAbsoluteUri)
+            {
+                throw new ArgumentException("URI must be absolute to convert to a path", nameof(uri));
+            }
+
+            if (uri.Scheme != Uri.UriSchemeFile)
+            {
+                throw new ArgumentException(
+                    $"URI must use the '{Uri.UriSchemeFile}' scheme, but was '{uri.Scheme}'", nameof(uri));
+            }
+
+            return From(uri.LocalPath);
+        }
+
+        /// <summary>
         /// Creates a new instance of <see cref="ChainablePath"/> representing the first existing path from the specified list of paths.
         /// </summary>
         /// <param name="paths">
@@ -466,6 +502,24 @@ namespace Pathy
         public FileInfo ToFileInfo()
         {
             return new FileInfo(ToString());
+        }
+
+        /// <summary>
+        /// Converts the current <see cref="ChainablePath"/> instance to a <c>file://</c> <see cref="Uri"/>.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the current path is not absolute (rooted). Relative paths have no unambiguous URI representation,
+        /// so this method never resolves them against the current directory.
+        /// </exception>
+        public Uri ToUri()
+        {
+            if (!IsRooted)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot convert relative path '{path}' to a URI. The path must be absolute.");
+            }
+
+            return new Uri(path);
         }
 
         /// <summary>
