@@ -16,10 +16,12 @@ namespace Pathy
     /// the <c>/</c> operator
     /// </summary>
 #if PATHY_PUBLIC
+    [global::System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
     public readonly record struct ChainablePath
 #else
     [global::Microsoft.CodeAnalysis.Embedded]
     [global::System.Diagnostics.DebuggerNonUserCode]
+    [global::System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
     internal readonly record struct ChainablePath
 #endif
     {
@@ -29,6 +31,12 @@ namespace Pathy
         {
             this.path = path;
         }
+
+        /// <summary>
+        /// Builds the value shown by the debugger for this instance, based solely on the stored path so that
+        /// it has no side effects and never touches the file system.
+        /// </summary>
+        private string DebuggerDisplayValue => path.Length == 0 ? "<empty>" : path;
 
         /// <summary>
         /// Represents an empty <see cref="ChainablePath"/> instance.

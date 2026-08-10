@@ -1,6 +1,7 @@
 ﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Pathy.Specs")]
 namespace Pathy
 {
+    [System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
     public readonly struct ChainablePath : System.IEquatable<Pathy.ChainablePath>
     {
         public Pathy.ChainablePath Directory { get; }
