@@ -1,4 +1,6 @@
 <h1 align="center">
+
+
   <br>
   <img src="./logo.png" style="width:300px" alt="Pathy"/>
   <br>
@@ -162,6 +164,15 @@ ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.js
 
 // Match files with multiple patterns
 ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.txt", "**/*.md", "**/*.json");
+```
+
+The same package also provides `Matches`, which tests whether a path matches a glob pattern without touching
+the file system at all - the path doesn't need to exist and no directory is enumerated:
+
+```csharp
+changedFile.Matches("**/*.cs");                 // true for src/Pathy/ChainablePath.cs
+changedFile.Matches("**/bin/**", "**/obj/**");  // filter out build output
+var relevant = changedFiles.Where(x => x.Matches("src/**/*.cs")).ToArray();
 ```
 
 ### File system operations

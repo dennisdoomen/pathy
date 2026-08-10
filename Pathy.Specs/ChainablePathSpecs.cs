@@ -597,6 +597,125 @@ public class ChainablePathSpecs
             .WithParameterName("globPatterns");
     }
 
+    // Issue #35 asked for a `Match(wildcard)` method and was closed without shipping a public API. `Matches`
+    // (below) is what actually delivers that capability - purely in-memory, without ever touching the file
+    // system or requiring the path to exist.
+    [Fact]
+    public void An_absolute_path_matches_a_pattern_that_corresponds_to_its_suffix()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "src" / "Pathy" / "ChainablePath.cs";
+
+        // Act & Assert
+        path.Matches("**/*.cs").Should().BeTrue();
+    }
+
+    [Fact]
+    public void An_absolute_path_does_not_match_an_unrelated_pattern()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "src" / "Pathy" / "ChainablePath.cs";
+
+        // Act & Assert
+        path.Matches("**/*.md").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Matches_does_not_require_the_path_to_exist_on_disk()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / Guid.NewGuid().ToString("N") / "does-not-exist.cs";
+
+        // Act & Assert
+        path.Matches("**/*.cs").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Matches_with_multiple_patterns_returns_true_if_any_pattern_matches()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "src" / "Pathy" / "ChainablePath.cs";
+
+        // Act & Assert
+        path.Matches("**/bin/**", "**/obj/**", "**/*.cs").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Matches_with_multiple_patterns_returns_false_if_none_match()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "src" / "Pathy" / "ChainablePath.cs";
+
+        // Act & Assert
+        path.Matches("**/bin/**", "**/obj/**").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Matches_is_case_insensitive()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "src" / "Pathy" / "ChainablePath.cs";
+
+        // Act & Assert
+        path.Matches("**/*.CS").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Matches_with_single_pattern_throws_when_pattern_is_null()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "file.cs";
+
+        // Act & Assert
+        var act = () => path.Matches((string)null);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void Matches_with_multiple_patterns_throws_when_no_patterns_provided()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "file.cs";
+
+        // Act & Assert
+        var act = () => path.Matches(new string[0]);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*At least one glob pattern must be provided*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void Matches_with_multiple_patterns_throws_when_a_pattern_is_null()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "file.cs";
+
+        // Act & Assert
+        var act = () => path.Matches("**/*.cs", null, "**/*.doc");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void Matches_with_multiple_patterns_throws_when_a_pattern_is_empty()
+    {
+        // Arrange
+        var path = ChainablePath.Temp / "file.cs";
+
+        // Act & Assert
+        var act = () => path.Matches("**/*.cs", "", "**/*.doc");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
     [Fact]
     public void Can_convert_to_directory_info()
     {
