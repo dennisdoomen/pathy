@@ -152,6 +152,27 @@ var missing = directory.ResolveFile("missing.txt");
 
 The method performs case-insensitive file name matching, so `ResolveFile("CONFIG.JSON")` will match `config.json`.
 
+### Binding and serialization
+
+`ChainablePath` has a `TypeConverter` (`ChainablePathTypeConverter`) applied to it out of the box, so it works transparently with anything that relies on `System.ComponentModel.TypeConverter` to convert to and from a `string`, such as binding `appsettings.json` configuration to a class, MSBuild properties, or command-line argument parsers. No extra setup is required.
+
+```csharp
+public class MyOptions
+{
+    public ChainablePath WorkingDirectory { get; set; }
+}
+```
+
+`System.Text.Json` support is opt-in rather than automatic, because it isn't available out of the box on every framework this source-only package targets (notably .NET Framework 4.7). To enable it, define the `PATHY_SYSTEM_TEXT_JSON` compilation symbol in your own project (and reference the `System.Text.Json` package if your target framework doesn't already ship it). This activates the `[JsonConverter(typeof(ChainablePathJsonConverter))]` attribute on `ChainablePath`, so it serializes and deserializes as its plain string representation:
+
+```xml
+<PropertyGroup>
+  <DefineConstants>$(DefineConstants);PATHY_SYSTEM_TEXT_JSON</DefineConstants>
+</PropertyGroup>
+```
+
+Serialized paths are just platform-specific strings, so round-tripping a Windows-style path on Linux (or vice versa) is up to you; the converter performs no path translation.
+
 ### Globbing
 
 If you add the `Pathy.Globbing` NuGet source-only package as well, you'll get access to the `GlobFiles` method. With that, you can fetch a collection of files like this:
