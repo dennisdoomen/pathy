@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using FluentAssertions;
@@ -59,6 +60,65 @@ public class ChainablePathSpecs
         path.ToString().Should().BeEquivalentTo("C:" + Slash);
         path.IsRooted.Should().BeTrue();
     }
+
+    [Fact]
+    public void Can_use_a_path_inside_an_interpolated_string()
+    {
+        // Arrange
+        var path = ChainablePath.From(@"C:\some\file.txt");
+
+        // Act
+        string result = $"The path is {path}";
+
+        // Assert
+        result.Should().Be(@"The path is C:\some\file.txt");
+    }
+
+    [Fact]
+    public void Can_format_a_path_using_ToString_with_format_and_provider()
+    {
+        // Arrange
+        var path = ChainablePath.From(@"C:\some\file.txt");
+
+        // Act
+        string result = path.ToString("whatever", CultureInfo.InvariantCulture);
+
+        // Assert
+        result.Should().Be(@"C:\some\file.txt");
+    }
+
+#if NET6_0_OR_GREATER
+    [Fact]
+    public void Can_try_format_a_path_into_a_span_that_is_large_enough()
+    {
+        // Arrange
+        var path = ChainablePath.From(@"C:\some\file.txt");
+        Span<char> destination = stackalloc char[path.ToString().Length];
+
+        // Act
+        bool success = path.TryFormat(destination, out int charsWritten, default, null);
+
+        // Assert
+        success.Should().BeTrue();
+        charsWritten.Should().Be(path.ToString().Length);
+        destination.ToString().Should().Be(path.ToString());
+    }
+
+    [Fact]
+    public void Cannot_try_format_a_path_into_a_span_that_is_too_small()
+    {
+        // Arrange
+        var path = ChainablePath.From(@"C:\some\file.txt");
+        Span<char> destination = stackalloc char[2];
+
+        // Act
+        bool success = path.TryFormat(destination, out int charsWritten, default, null);
+
+        // Assert
+        success.Should().BeFalse();
+        charsWritten.Should().Be(0);
+    }
+#endif
 
     [Theory]
     [InlineData("")]
@@ -681,7 +741,7 @@ public class ChainablePathSpecs
         var path = ChainablePath.Temp / "file.cs";
 
         // Act & Assert
-        var act = () => path.Matches(new string[0]);
+        var act = () => path.Matches(Array.Empty<string>());
 
         act.Should().Throw<ArgumentException>()
             .WithMessage("*At least one glob pattern must be provided*")

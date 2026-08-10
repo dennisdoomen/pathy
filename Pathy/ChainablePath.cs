@@ -19,12 +19,13 @@ namespace Pathy
     /// Represents an absolute or relative path to a directory or file that simplifies operations like combining paths using
     /// the <c>/</c> operator
     /// </summary>
+#if NET6_0_OR_GREATER
 #if PATHY_PUBLIC
     [TypeConverter(typeof(ChainablePathTypeConverter))]
 #if PATHY_SYSTEM_TEXT_JSON
     [JsonConverter(typeof(ChainablePathJsonConverter))]
 #endif
-    public readonly record struct ChainablePath
+    public readonly record struct ChainablePath : IFormattable, ISpanFormattable
 #else
     [global::Microsoft.CodeAnalysis.Embedded]
     [global::System.Diagnostics.DebuggerNonUserCode]
@@ -32,7 +33,24 @@ namespace Pathy
 #if PATHY_SYSTEM_TEXT_JSON
     [JsonConverter(typeof(ChainablePathJsonConverter))]
 #endif
-    internal readonly record struct ChainablePath
+    internal readonly record struct ChainablePath : IFormattable, ISpanFormattable
+#endif
+#else
+#if PATHY_PUBLIC
+    [TypeConverter(typeof(ChainablePathTypeConverter))]
+#if PATHY_SYSTEM_TEXT_JSON
+    [JsonConverter(typeof(ChainablePathJsonConverter))]
+#endif
+    public readonly record struct ChainablePath : IFormattable
+#else
+    [global::Microsoft.CodeAnalysis.Embedded]
+    [global::System.Diagnostics.DebuggerNonUserCode]
+    [TypeConverter(typeof(ChainablePathTypeConverter))]
+#if PATHY_SYSTEM_TEXT_JSON
+    [JsonConverter(typeof(ChainablePathJsonConverter))]
+#endif
+    internal readonly record struct ChainablePath : IFormattable
+#endif
 #endif
     {
         private readonly string path = string.Empty;
@@ -480,6 +498,41 @@ namespace Pathy
         {
             return path;
         }
+
+        /// <summary>
+        /// Returns the string representation of the current <see cref="ChainablePath"/> instance.
+        /// </summary>
+        /// <remarks>
+        /// A <see cref="ChainablePath"/> has no format specifiers of its own, so <paramref name="format"/> and
+        /// <paramref name="formatProvider"/> are ignored and the underlying path is returned as-is.
+        /// </remarks>
+        public string ToString(string? format, IFormatProvider? formatProvider)
+        {
+            return path;
+        }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Tries to write the string representation of the current <see cref="ChainablePath"/> instance into the
+        /// provided span of characters, avoiding the intermediate string allocation that would otherwise be needed,
+        /// for instance when the path is used inside an interpolated string.
+        /// </summary>
+        /// <remarks>
+        /// A <see cref="ChainablePath"/> has no format specifiers of its own, so <paramref name="format"/> and
+        /// <paramref name="provider"/> are ignored.
+        /// </remarks>
+        public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+        {
+            if (!path.AsSpan().TryCopyTo(destination))
+            {
+                charsWritten = 0;
+                return false;
+            }
+
+            charsWritten = path.Length;
+            return true;
+        }
+#endif
 
         /// <summary>
         /// Allows casting a <see cref="ChainablePath"/> instance to a string so it can be used anywhere where a path as string is expected.

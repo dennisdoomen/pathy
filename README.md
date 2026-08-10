@@ -110,6 +110,15 @@ string rawPath = path.ToString();
 string rawPath = (string)path;
 ```
 
+`ChainablePath` also implements `IFormattable`, and, on .NET 6.0 and later, `ISpanFormattable`, so it can be used directly inside interpolated strings and composite format strings without an intermediate allocation:
+
+```csharp
+Console.WriteLine($"Deploying from {path}");   // no extra string allocation on .NET 6+
+string message = string.Format("Path: {0}", path);
+```
+
+`ChainablePath` has no format specifiers of its own, so any format string you pass (e.g. `path.ToString("X")`) is ignored and the plain path is returned.
+
 ### Working with paths
 
 Know that `ChainablePath` overrides `Equals` and `GetHashCode`, so you can always compare two instances as you're used to.
