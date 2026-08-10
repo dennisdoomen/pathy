@@ -1305,4 +1305,110 @@ public class ChainablePathSpecs
             .WithParameterName("range");
     }
 #endif
+
+    [Fact]
+    public void Can_convert_an_absolute_path_to_a_file_uri()
+    {
+        // Arrange
+        var path = testFolder / "report.txt";
+
+        // Act
+        var uri = path.ToUri();
+
+        // Assert
+        uri.IsAbsoluteUri.Should().BeTrue();
+        uri.Scheme.Should().Be(Uri.UriSchemeFile);
+        uri.LocalPath.Should().Be(path.ToString());
+    }
+
+    [Fact]
+    public void Cannot_convert_a_relative_path_to_a_uri()
+    {
+        // Arrange
+        ChainablePath path = "relative/path.txt";
+
+        // Act
+        var act = () => path.ToUri();
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*must be absolute*");
+    }
+
+    [Fact]
+    public void Can_round_trip_an_absolute_path_through_to_uri_and_from_uri()
+    {
+        // Arrange
+        var path = testFolder / "report.txt";
+
+        // Act
+        var result = ChainablePath.FromUri(path.ToUri());
+
+        // Assert
+        result.ToString().Should().Be(path.ToString());
+    }
+
+    [Fact]
+    public void Can_round_trip_a_path_with_spaces_and_special_characters()
+    {
+        // Arrange
+        var path = testFolder / "my report (final) #1.txt";
+
+        // Act
+        var uri = path.ToUri();
+        var result = ChainablePath.FromUri(uri);
+
+        // Assert
+        result.ToString().Should().Be(path.ToString());
+    }
+
+    [Fact]
+    public void Can_convert_a_unc_path_to_a_uri_and_back()
+    {
+        // Arrange
+        ChainablePath path = @"\\server\share\file.txt";
+
+        // Act
+        var uri = path.ToUri();
+        var result = ChainablePath.FromUri(uri);
+
+        // Assert
+        uri.IsUnc.Should().BeTrue();
+        uri.Host.Should().Be("server");
+        result.ToString().Should().Be(path.ToString());
+    }
+
+    [Fact]
+    public void From_uri_rejects_a_null_uri()
+    {
+        // Act
+        var act = () => ChainablePath.FromUri(null);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>().WithParameterName("uri");
+    }
+
+    [Fact]
+    public void From_uri_rejects_a_non_file_scheme()
+    {
+        // Act
+        var act = () => ChainablePath.FromUri(new Uri("https://example.com/some/path"));
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*https*")
+            .WithParameterName("uri");
+    }
+
+    [Fact]
+    public void From_uri_rejects_a_relative_uri()
+    {
+        // Act
+        var act = () => ChainablePath.FromUri(new Uri("relative/path.txt", UriKind.Relative));
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*absolute*")
+            .WithParameterName("uri");
+    }
 }
