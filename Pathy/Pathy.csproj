@@ -36,7 +36,7 @@
     assembly, not the contentFiles package itself.
   -->
   <ItemGroup Label="System.Text.Json for non-net8.0 targets" Condition="'$(TargetFramework)' != 'net8.0'">
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.Text.Json" Version="8.0.6" />
   </ItemGroup>
 
   <ItemGroup Label="Internals visible to">
