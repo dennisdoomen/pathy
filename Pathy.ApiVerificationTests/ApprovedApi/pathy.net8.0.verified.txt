@@ -4,7 +4,7 @@ namespace Pathy
     [System.ComponentModel.TypeConverter(typeof(Pathy.ChainablePathTypeConverter))]
     [System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
     [System.Text.Json.Serialization.JsonConverter(typeof(Pathy.ChainablePathJsonConverter))]
-    public readonly struct ChainablePath : System.IEquatable<Pathy.ChainablePath>, System.IFormattable, System.ISpanFormattable
+    public readonly struct ChainablePath : System.IComparable, System.IComparable<Pathy.ChainablePath>, System.IEquatable<Pathy.ChainablePath>, System.IFormattable, System.ISpanFormattable
     {
         public Pathy.ChainablePath Directory { get; }
         public bool DirectoryExists { get; }
@@ -27,6 +27,8 @@ namespace Pathy
         public static Pathy.ChainablePath Null { get; }
         public static Pathy.ChainablePath Temp { get; }
         public Pathy.ChainablePath AsRelativeTo(Pathy.ChainablePath basePath) { }
+        public int CompareTo(Pathy.ChainablePath other) { }
+        public int CompareTo(object? obj) { }
         public Pathy.ChainablePath FindParentWithFileMatching(params string[] wildcards) { }
         public bool HasExtension(string extension) { }
         public bool HasName(string name) { }
@@ -49,6 +51,10 @@ namespace Pathy
         public static Pathy.ChainablePath operator /(Pathy.ChainablePath leftPath, System.Range range) { }
         public static Pathy.ChainablePath operator /(Pathy.ChainablePath leftPath, string subPath) { }
         public static Pathy.ChainablePath operator /(Pathy.ChainablePath? leftPath, string subPath) { }
+        public static bool operator <(Pathy.ChainablePath left, Pathy.ChainablePath right) { }
+        public static bool operator <=(Pathy.ChainablePath left, Pathy.ChainablePath right) { }
+        public static bool operator >(Pathy.ChainablePath left, Pathy.ChainablePath right) { }
+        public static bool operator >=(Pathy.ChainablePath left, Pathy.ChainablePath right) { }
     }
     public static class ChainablePathExtensions
     {
@@ -72,6 +78,15 @@ namespace Pathy
         public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Type? destinationType) { }
         public override object? ConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value) { }
         public override object? ConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object? value, System.Type destinationType) { }
+    }
+    public sealed class PathComparer : System.Collections.Generic.IComparer<Pathy.ChainablePath>, System.Collections.Generic.IEqualityComparer<Pathy.ChainablePath>
+    {
+        public static Pathy.PathComparer Default { get; }
+        public static Pathy.PathComparer Ordinal { get; }
+        public static Pathy.PathComparer OrdinalIgnoreCase { get; }
+        public int Compare(Pathy.ChainablePath x, Pathy.ChainablePath y) { }
+        public bool Equals(Pathy.ChainablePath x, Pathy.ChainablePath y) { }
+        public int GetHashCode(Pathy.ChainablePath obj) { }
     }
     public static class StringExtensions
     {

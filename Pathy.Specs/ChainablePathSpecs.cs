@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using Xunit;
@@ -31,6 +33,33 @@ public class ChainablePathSpecs
         // Assert
         path.DirectoryName.Should().Be(Path.GetDirectoryName(location));
         path.IsRooted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Can_sort_paths_by_segments()
+    {
+        var paths = new[]
+        {
+            ChainablePath.From("a/b/c"),
+            ChainablePath.From("a-b"),
+            ChainablePath.From("a/b")
+        };
+
+        paths.OrderBy(path => path, PathComparer.Ordinal).Should().Equal(
+            ChainablePath.From("a/b"),
+            ChainablePath.From("a/b/c"),
+            ChainablePath.From("a-b"));
+    }
+
+    [Fact]
+    public void Can_compare_paths_with_an_explicit_case_policy()
+    {
+        var upper = ChainablePath.From("folder/File.txt");
+        var lower = ChainablePath.From("folder/file.txt");
+
+        PathComparer.Ordinal.Equals(upper, lower).Should().BeFalse();
+        PathComparer.OrdinalIgnoreCase.Equals(upper, lower).Should().BeTrue();
+        new SortedSet<ChainablePath>(new[] { upper, lower }, PathComparer.OrdinalIgnoreCase).Should().ContainSingle();
     }
 
     [Fact]

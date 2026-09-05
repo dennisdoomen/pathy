@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+
+namespace Pathy;
+
+/// <summary>
+/// Compares paths by their individual segments.
+/// </summary>
+public sealed class PathComparer : IEqualityComparer<ChainablePath>, IComparer<ChainablePath>
+{
+    private readonly StringComparer segmentComparer;
+
+    private PathComparer(StringComparer segmentComparer)
+    {
+        this.segmentComparer = segmentComparer;
+    }
+
+    /// <summary>
+    /// Gets an ordinal, case-sensitive path comparer.
+    /// </summary>
+    public static PathComparer Ordinal { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Gets an ordinal, case-insensitive path comparer.
+    /// </summary>
+    public static PathComparer OrdinalIgnoreCase { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Gets the platform default path comparer.
+    /// </summary>
+    public static PathComparer Default { get; } =
+#if NET5_0_OR_GREATER
+        OperatingSystem.IsWindows() ? OrdinalIgnoreCase : Ordinal;
+#else
+        Environment.OSVersion.Platform == PlatformID.Win32NT ? OrdinalIgnoreCase : Ordinal;
+#endif
+
+    /// <inheritdoc />
+    public int Compare(ChainablePath x, ChainablePath y)
+    {
+        string[] leftSegments = GetSegments(x);
+        string[] rightSegments = GetSegments(y);
+        int length = Math.Min(leftSegments.Length, rightSegments.Length);
+
+        for (int index = 0; index < length; index++)
+        {
+            int comparison = segmentComparer.Compare(leftSegments[index], rightSegments[index]);
+            if (comparison != 0)
+            {
+                return comparison;
+            }
+        }
+
+        return leftSegments.Length.CompareTo(rightSegments.Length);
+    }
+
+    /// <inheritdoc />
+    public bool Equals(ChainablePath x, ChainablePath y) => Compare(x, y) == 0;
+
+    /// <inheritdoc />
+    public int GetHashCode(ChainablePath obj)
+    {
+        int hash = 17;
+        foreach (string segment in GetSegments(obj))
+        {
+            hash = unchecked((hash * 31) + segmentComparer.GetHashCode(segment));
+        }
+
+        return hash;
+    }
+
+    private static string[] GetSegments(ChainablePath path) =>
+        path.ToString().Split(new[] { '/', '\\' }, StringSplitOptions.None);
+}
