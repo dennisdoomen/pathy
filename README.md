@@ -134,12 +134,32 @@ Given an instance of `ChainablePath`, you can get a lot of useful information:
 * To check if a path has a specific file or directory name (case-insensitive), use `HasName("MyFile.txt")`.
 * Get the last write time in UTC using `LastWriteTimeUtc` for both files and directories.
 * To do a best-effort check for characters that are invalid on the current platform, use `IsValid` (see [Edge cases](#edge-cases-invalid-characters-long-paths-and-unc-paths) below).
+* To clean up `.` and `..` segments without reading the current directory or file system, use `Normalize()`.
 
 And if the built-in functionality really isn't enough, you can always call `ToDirectoryInfo` or `ToFileInfo` to continue with an instance of `DirectoryInfo` and `FileInfo`.
 
 Other features
 * Build an absolute path from a relative path using `ToAbsolute` to use the current directory as the base or `ToAbsolute(parentPath)` to use something else as the base.
 * Finding the closest parent directory containing a file matching one or more wildcards. For example, given you have a `ChainablePath` pointing to a `.csproj` file, you can then use `FindParentWithFileMatching("*.sln", "*.slnx")` to find the directory containing the `.sln` or `.slnx` file.
+
+### Cleaning up path text
+
+Use `Normalize()` when you want to clean up path text without converting a relative path to an absolute path and without checking the file system.
+
+```csharp
+ChainablePath.From("src/../docs/./readme.md").Normalize();
+// Returns "docs/readme.md", still relative
+
+ChainablePath.From("../../shared").Normalize();
+// Returns "../../shared", because the leading parent segments cannot be resolved
+
+ChainablePath.From("c:/work/repo/src/../docs").Normalize();
+// Returns "c:/work/repo/docs"
+```
+
+`Normalize()` removes `.` segments and resolves `..` segments against earlier path segments. It keeps leading `..` segments in a relative path when there is no earlier segment to remove. For an absolute path, `..` at the root stays at the root. For example, normalizing `C:\..` returns `C:\`.
+
+`ToString()` still returns the path as stored. Call `Normalize()` explicitly when you want this cleanup. `Normalize()` is not the same as file-system resolution. It does not read the current directory, check whether the path exists, or resolve symbolic links.
 
 ### Resolving files
 
@@ -186,7 +206,7 @@ Serialized paths are just platform-specific strings, so round-tripping a Windows
 
 ### Edge cases: invalid characters, long paths and UNC paths
 
-Pathy does not validate or normalize a path's content beyond combining segments and resolving `.` / `..` traversals. This has some consequences worth knowing about:
+Pathy does not validate a path's content. It also does not change the stored path text unless you explicitly use operations such as chaining segments with `/`, converting with `ToAbsolute()`, or cleaning up path text with `Normalize()`. This has some consequences worth knowing about:
 
 * **Invalid characters.** `ChainablePath.From` and the `/` and `+` operators do not check whether a segment contains characters that are invalid on the current platform (e.g. `<`, `>`, `|`, `?`, `*` or control characters on Windows). Constructing such a path never throws; the invalid characters are simply carried through, and any failure will happen later, when the path is actually used to access the file system (e.g. via `File.Exists`, `CreateDirectoryRecursively`, etc.). If you want to check upfront, use `IsValid`:
   ```csharp
