@@ -37,9 +37,13 @@ namespace Pathy
         public object ToAbsolute(Pathy.ChainablePath parentPath) { }
         public System.IO.DirectoryInfo ToDirectoryInfo() { }
         public System.IO.FileInfo ToFileInfo() { }
+        public string ToNativePath() { }
+        public string ToQuotedString() { }
         public override string ToString() { }
         public string ToString(string? format, System.IFormatProvider? formatProvider) { }
+        public string ToUnixPath() { }
         public System.Uri ToUri() { }
+        public string ToWindowsPath() { }
         public bool TryFormat(System.Span<char> destination, out int charsWritten, System.ReadOnlySpan<char> format, System.IFormatProvider? provider) { }
         public static Pathy.ChainablePath FindFirst(params Pathy.ChainablePath[] paths) { }
         public static Pathy.ChainablePath FindFirst(params string[] paths) { }
