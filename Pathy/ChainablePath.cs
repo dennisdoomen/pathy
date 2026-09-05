@@ -27,7 +27,7 @@ namespace Pathy
     [JsonConverter(typeof(ChainablePathJsonConverter))]
 #endif
     [global::System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
-    public readonly record struct ChainablePath : IFormattable, ISpanFormattable
+    public readonly record struct ChainablePath : IFormattable, ISpanFormattable, IComparable<ChainablePath>, IComparable
 #else
     [global::Microsoft.CodeAnalysis.Embedded]
     [global::System.Diagnostics.DebuggerNonUserCode]
@@ -36,7 +36,7 @@ namespace Pathy
     [JsonConverter(typeof(ChainablePathJsonConverter))]
 #endif
     [global::System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
-    internal readonly record struct ChainablePath : IFormattable, ISpanFormattable
+    internal readonly record struct ChainablePath : IFormattable, ISpanFormattable, IComparable<ChainablePath>, IComparable
 #endif
 #else
 #if PATHY_PUBLIC
@@ -45,7 +45,7 @@ namespace Pathy
     [JsonConverter(typeof(ChainablePathJsonConverter))]
 #endif
     [global::System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
-    public readonly record struct ChainablePath : IFormattable
+    public readonly record struct ChainablePath : IFormattable, IComparable<ChainablePath>, IComparable
 #else
     [global::Microsoft.CodeAnalysis.Embedded]
     [global::System.Diagnostics.DebuggerNonUserCode]
@@ -54,7 +54,7 @@ namespace Pathy
     [JsonConverter(typeof(ChainablePathJsonConverter))]
 #endif
     [global::System.Diagnostics.DebuggerDisplay("{DebuggerDisplayValue,nq}")]
-    internal readonly record struct ChainablePath : IFormattable
+    internal readonly record struct ChainablePath : IFormattable, IComparable<ChainablePath>, IComparable
 #endif
 #endif
     {
@@ -356,6 +356,52 @@ namespace Pathy
         {
             return From(leftPath.ToString() + additionalPath);
         }
+
+        /// <summary>
+        /// Compares two paths using <see cref="PathComparer.Default"/>.
+        /// </summary>
+        public int CompareTo(ChainablePath other)
+        {
+            return PathComparer.Default.Compare(this, other);
+        }
+
+        /// <summary>
+        /// Compares this path with another object using <see cref="PathComparer.Default"/>.
+        /// </summary>
+        public int CompareTo(object? obj)
+        {
+            if (obj is null)
+            {
+                return 1;
+            }
+
+            if (obj is ChainablePath other)
+            {
+                return CompareTo(other);
+            }
+
+            throw new ArgumentException($"Object must be of type {nameof(ChainablePath)}", nameof(obj));
+        }
+
+        /// <summary>
+        /// Determines whether one path sorts before another using <see cref="PathComparer.Default"/>.
+        /// </summary>
+        public static bool operator <(ChainablePath left, ChainablePath right) => left.CompareTo(right) < 0;
+
+        /// <summary>
+        /// Determines whether one path sorts after another using <see cref="PathComparer.Default"/>.
+        /// </summary>
+        public static bool operator >(ChainablePath left, ChainablePath right) => left.CompareTo(right) > 0;
+
+        /// <summary>
+        /// Determines whether one path sorts before or equal to another using <see cref="PathComparer.Default"/>.
+        /// </summary>
+        public static bool operator <=(ChainablePath left, ChainablePath right) => left.CompareTo(right) <= 0;
+
+        /// <summary>
+        /// Determines whether one path sorts after or equal to another using <see cref="PathComparer.Default"/>.
+        /// </summary>
+        public static bool operator >=(ChainablePath left, ChainablePath right) => left.CompareTo(right) >= 0;
 
         /// <summary>
         /// Gets a value indicating whether the current <see cref="ChainablePath"/> instance is equal to <see cref="ChainablePath.Null"/>.
