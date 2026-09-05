@@ -176,6 +176,98 @@ public class ChainablePathSpecs
     }
 
     [Fact]
+    public void ToString_keeps_a_relative_path_as_provided()
+    {
+        // Act
+        var path = ChainablePath.From("src/./generated/../docs/readme.md");
+
+        // Assert
+        path.ToString().Should().Be("src" + Slash + "." + Slash + "generated" + Slash + ".." + Slash + "docs" +
+            Slash + "readme.md");
+    }
+
+    [Fact]
+    public void Normalize_removes_current_directory_segments()
+    {
+        // Act
+        var path = ChainablePath.From("src/./docs/./readme.md").Normalize();
+
+        // Assert
+        path.ToString().Should().Be("src" + Slash + "docs" + Slash + "readme.md");
+        path.IsRooted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Normalize_resolves_internal_parent_directory_segments()
+    {
+        // Act
+        var path = ChainablePath.From("src/generated/../docs/readme.md").Normalize();
+
+        // Assert
+        path.ToString().Should().Be("src" + Slash + "docs" + Slash + "readme.md");
+        path.IsRooted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Normalize_keeps_unresolved_parent_directory_segments_in_relative_paths()
+    {
+        // Act
+        var path = ChainablePath.From("../../shared/../assets").Normalize();
+
+        // Assert
+        path.ToString().Should().Be(".." + Slash + ".." + Slash + "assets");
+        path.IsRooted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Normalize_keeps_relative_paths_relative()
+    {
+        // Act
+        var path = ChainablePath.From("does-not-exist/../still-relative").Normalize();
+
+        // Assert
+        path.ToString().Should().Be("still-relative");
+        path.IsRooted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Normalize_keeps_absolute_paths_absolute()
+    {
+        // Arrange
+        ChainablePath root = ChainablePath.From(Path.GetPathRoot(Environment.CurrentDirectory)!);
+
+        // Act
+        var path = (root / "src" / ".." / "docs").Normalize();
+
+        // Assert
+        path.ToString().Should().Be(root.ToString() + "docs");
+        path.IsRooted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Normalize_does_not_move_above_the_root_of_an_absolute_path()
+    {
+        // Arrange
+        ChainablePath root = ChainablePath.From(Path.GetPathRoot(Environment.CurrentDirectory)!);
+
+        // Act
+        var path = (root / "..").Normalize();
+
+        // Assert
+        path.Should().Be(root);
+    }
+
+    [Fact]
+    public void Normalize_preserves_trailing_slashes()
+    {
+        // Act
+        var path = ChainablePath.From("src/./docs/").Normalize();
+
+        // Assert
+        path.ToString().Should().Be("src" + Slash + "docs" + Slash);
+    }
+
+    [Fact]
     public void Can_convert_the_relative_path_to_an_absolute_path_using_the_current_working_directory()
     {
         // Arrange
