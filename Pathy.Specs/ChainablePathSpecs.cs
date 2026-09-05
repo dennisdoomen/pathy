@@ -78,13 +78,62 @@ public class ChainablePathSpecs
     public void Can_format_a_path_using_ToString_with_format_and_provider()
     {
         // Arrange
+        var path = ChainablePath.From(@"C:\some\my file.txt");
+
+        // Act
+        string result = path.ToString("U", CultureInfo.InvariantCulture);
+
+        // Assert
+        result.Should().Be("C:/some/my file.txt");
+    }
+
+    [Theory]
+    [InlineData("N", @"C:\some\my file.txt")]
+    [InlineData("U", "C:/some/my file.txt")]
+    [InlineData("W", @"C:\some\my file.txt")]
+    [InlineData("Q", "\"C:\\some\\my file.txt\"")]
+    public void Can_format_a_path_using_a_named_format(string format, string expected)
+    {
+        // Arrange
+        var path = ChainablePath.From(@"C:\some\my file.txt");
+
+        // Act
+        string result = path.ToString(format, CultureInfo.InvariantCulture);
+
+        // Assert
+        result.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Named_formatting_methods_match_their_format_specifiers()
+    {
+        // Arrange
+        var path = ChainablePath.From(@"C:\some\my file.txt");
+
+        // Act
+        string unixPath = path.ToUnixPath();
+        string windowsPath = path.ToWindowsPath();
+        string nativePath = path.ToNativePath();
+        string quotedPath = path.ToQuotedString();
+
+        // Assert
+        unixPath.Should().Be(path.ToString("U", null));
+        windowsPath.Should().Be(path.ToString("W", null));
+        nativePath.Should().Be(path.ToString("N", null));
+        quotedPath.Should().Be(path.ToString("Q", null));
+    }
+
+    [Fact]
+    public void An_unknown_format_is_not_supported()
+    {
+        // Arrange
         var path = ChainablePath.From(@"C:\some\file.txt");
 
         // Act
-        string result = path.ToString("whatever", CultureInfo.InvariantCulture);
+        var act = () => path.ToString("X", CultureInfo.InvariantCulture);
 
         // Assert
-        result.Should().Be(@"C:\some\file.txt");
+        act.Should().Throw<FormatException>();
     }
 
 #if NET6_0_OR_GREATER

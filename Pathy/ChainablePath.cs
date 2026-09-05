@@ -568,12 +568,52 @@ namespace Pathy
         /// Returns the string representation of the current <see cref="ChainablePath"/> instance.
         /// </summary>
         /// <remarks>
-        /// A <see cref="ChainablePath"/> has no format specifiers of its own, so <paramref name="format"/> and
-        /// <paramref name="formatProvider"/> are ignored and the underlying path is returned as-is.
+        /// The supported format specifiers are <c>N</c> for the native path, <c>U</c> for forward slashes,
+        /// <c>W</c> for backslashes, and <c>Q</c> for a native path quoted when it contains whitespace.
+        /// An empty or <see langword="null"/> format uses <c>N</c>.
         /// </remarks>
         public string ToString(string? format, IFormatProvider? formatProvider)
         {
+            return format switch
+            {
+                null or "" or "N" => path,
+                "U" => ToUnixPath(),
+                "W" => ToWindowsPath(),
+                "Q" => ToQuotedString(),
+                _ => throw new FormatException($"The format '{format}' is not supported.")
+            };
+        }
+
+        /// <summary>
+        /// Returns the path with forward slashes.
+        /// </summary>
+        public string ToUnixPath()
+        {
+            return path.Replace('\\', '/');
+        }
+
+        /// <summary>
+        /// Returns the path with backslashes.
+        /// </summary>
+        public string ToWindowsPath()
+        {
+            return path.Replace('/', '\\');
+        }
+
+        /// <summary>
+        /// Returns the path using the native separator for the current platform.
+        /// </summary>
+        public string ToNativePath()
+        {
             return path;
+        }
+
+        /// <summary>
+        /// Returns the native path surrounded by double quotes when it contains whitespace.
+        /// </summary>
+        public string ToQuotedString()
+        {
+            return path.Any(char.IsWhiteSpace) ? $"\"{path}\"" : path;
         }
 
 #if NET6_0_OR_GREATER
@@ -583,18 +623,20 @@ namespace Pathy
         /// for instance when the path is used inside an interpolated string.
         /// </summary>
         /// <remarks>
-        /// A <see cref="ChainablePath"/> has no format specifiers of its own, so <paramref name="format"/> and
-        /// <paramref name="provider"/> are ignored.
+        /// The supported format specifiers are <c>N</c> for the native path, <c>U</c> for forward slashes,
+        /// <c>W</c> for backslashes, and <c>Q</c> for a native path quoted when it contains whitespace.
         /// </remarks>
         public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
         {
-            if (!path.AsSpan().TryCopyTo(destination))
+            string formattedPath = ToString(format.Length == 0 ? null : format.ToString(), provider);
+
+            if (!formattedPath.AsSpan().TryCopyTo(destination))
             {
                 charsWritten = 0;
                 return false;
             }
 
-            charsWritten = path.Length;
+            charsWritten = formattedPath.Length;
             return true;
         }
 #endif

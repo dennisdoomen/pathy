@@ -117,7 +117,21 @@ Console.WriteLine($"Deploying from {path}");   // no extra string allocation on 
 string message = string.Format("Path: {0}", path);
 ```
 
-`ChainablePath` has no format specifiers of its own, so any format string you pass (e.g. `path.ToString("X")`) is ignored and the plain path is returned.
+`ChainablePath` supports format specifiers for output that needs a specific separator:
+
+* `N` (or no format) uses the native separator for the current platform.
+* `U` uses forward slashes, which is useful for URLs, Docker and cross-platform output.
+* `W` uses backslashes.
+* `Q` uses the native separator and surrounds the path with double quotes when it contains whitespace.
+
+```csharp
+string unixPath = path.ToString("U");
+string quotedPath = path.ToQuotedString();
+string command = $"dotnet build {path:Q}";
+```
+
+The named methods `ToUnixPath()`, `ToWindowsPath()`, `ToNativePath()` and `ToQuotedString()` provide the same
+formats when interpolation is not needed. An unsupported format throws `FormatException`.
 
 ### Working with paths
 
