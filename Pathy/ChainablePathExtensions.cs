@@ -9,126 +9,125 @@ using System.IO;
 
 namespace Pathy
 {
-
 #if PATHY_PUBLIC
-public static class ChainablePathExtensions
+    public static class ChainablePathExtensions
 #else
-[global::Microsoft.CodeAnalysis.Embedded]
-[global::System.Diagnostics.DebuggerNonUserCode]
-internal static class ChainablePathExtensions
+    [global::Microsoft.CodeAnalysis.Embedded]
+    [global::System.Diagnostics.DebuggerNonUserCode]
+    internal static class ChainablePathExtensions
 #endif
-{
-    /// <summary>
-    /// Creates the directory represented by the specified <see cref="ChainablePath"/> and any necessary subdirectories.
-    /// </summary>
-    public static void CreateDirectoryRecursively(this ChainablePath path)
     {
-        Directory.CreateDirectory(path.ToString());
-    }
-
-    /// <summary>
-    /// Deletes the file or directory represented by the specified <see cref="ChainablePath"/>.
-    /// If the path represents a directory, it is deleted recursively.
-    /// </summary>
-    public static void DeleteFileOrDirectory(this ChainablePath path)
-    {
-        if (path.IsFile)
+        /// <summary>
+        /// Creates the directory represented by the specified <see cref="ChainablePath"/> and any necessary subdirectories.
+        /// </summary>
+        public static void CreateDirectoryRecursively(this ChainablePath path)
         {
-            File.Delete(path.ToString());
-        }
-        else if (path.IsDirectory)
-        {
-            Directory.Delete(path.ToString(), recursive: true);
-        }
-    }
-
-    /// <summary>
-    /// Moves a file or directory represented by the specified <see cref="ChainablePath"/> to a target directory, with an optional new name.
-    /// </summary>
-    /// <param name="sourcePath">The path of the file or directory to move.</param>
-    /// <param name="destinationDirectory">The target directory where the file or directory will be moved.</param>
-    /// <param name="newName">The new name for the file or directory. If null, the original name will be preserved.</param>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="newName"/> is provided but is an empty string.</exception>
-    public static void MoveFileOrDirectory(this ChainablePath sourcePath, ChainablePath destinationDirectory,
-        string newName = null)
-    {
-        if (newName is { Length: 0 })
-        {
-            throw new ArgumentException("Renaming requires a valid name", nameof(newName));
+            Directory.CreateDirectory(path.ToString());
         }
 
-        if (sourcePath.IsFile)
+        /// <summary>
+        /// Deletes the file or directory represented by the specified <see cref="ChainablePath"/>.
+        /// If the path represents a directory, it is deleted recursively.
+        /// </summary>
+        public static void DeleteFileOrDirectory(this ChainablePath path)
         {
-            File.Move(sourcePath, Path.Combine(destinationDirectory.ToString(), newName ?? sourcePath.Name));
-        }
-        else
-        {
-            Directory.Move(sourcePath, Path.Combine(destinationDirectory.ToString(), newName ?? sourcePath.Name));
-        }
-    }
-
-    /// <summary>
-    /// Deletes the files or directories represented by the specified collection of <see cref="ChainablePath"/> instances.
-    /// If a path represents a directory, it is deleted recursively.
-    /// </summary>
-    public static void DeleteFileOrDirectory(this System.Collections.Generic.IEnumerable<ChainablePath> paths)
-    {
-        foreach (var path in paths)
-        {
-            path.DeleteFileOrDirectory();
-        }
-    }
-
-    /// <summary>
-    /// Moves files or directories represented by the specified collection of <see cref="ChainablePath"/> instances to a target directory.
-    /// </summary>
-    /// <param name="sourcePaths">The collection of paths of the files or directories to move.</param>
-    /// <param name="destinationDirectory">The target directory where the files or directories will be moved.</param>
-    public static void MoveFileOrDirectory(this System.Collections.Generic.IEnumerable<ChainablePath> sourcePaths,
-        ChainablePath destinationDirectory)
-    {
-        foreach (var sourcePath in sourcePaths)
-        {
-            sourcePath.MoveFileOrDirectory(destinationDirectory);
-        }
-    }
-
-    /// <summary>
-    /// Resolves a file name within the current path.
-    /// If the path represents a file with the specified name and that file exists, returns the path.
-    /// If the path is a directory that contains a file with the specified name, returns the path to that file.
-    /// Otherwise, returns <see cref="ChainablePath.Empty"/>.
-    /// </summary>
-    /// <param name="path">The base path to resolve from (can be a file or directory).</param>
-    /// <param name="fileName">The file name to resolve.</param>
-    /// <returns>
-    /// A <see cref="ChainablePath"/> representing the resolved file if found; otherwise, <see cref="ChainablePath.Empty"/>.
-    /// </returns>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="fileName"/> is null or empty.</exception>
-    public static ChainablePath ResolveFile(this ChainablePath path, string fileName)
-    {
-        if (string.IsNullOrEmpty(fileName))
-        {
-            throw new ArgumentException("File name cannot be null or empty", nameof(fileName));
-        }
-
-        // Case 1: If the path is a file with the specified name and exists, return it
-        if (path.IsFile && string.Equals(path.Name, fileName, StringComparison.OrdinalIgnoreCase))
-        {
-            return path;
-        }
-
-        // Case 2: If the path is a directory, check if it contains the file
-        if (path.IsDirectory)
-        {
-            ChainablePath filePath = path / fileName;
-            if (filePath.FileExists)
+            if (path.IsFile)
             {
-                return filePath;
+                File.Delete(path.ToString());
+            }
+            else if (path.IsDirectory)
+            {
+                Directory.Delete(path.ToString(), recursive: true);
             }
         }
 
-        return ChainablePath.Empty;
+        /// <summary>
+        /// Moves a file or directory represented by the specified <see cref="ChainablePath"/> to a target directory, with an optional new name.
+        /// </summary>
+        /// <param name="sourcePath">The path of the file or directory to move.</param>
+        /// <param name="destinationDirectory">The target directory where the file or directory will be moved.</param>
+        /// <param name="newName">The new name for the file or directory. If null, the original name will be preserved.</param>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="newName"/> is provided but is an empty string.</exception>
+        public static void MoveFileOrDirectory(this ChainablePath sourcePath, ChainablePath destinationDirectory,
+            string newName = null)
+        {
+            if (newName is { Length: 0 })
+            {
+                throw new ArgumentException("Renaming requires a valid name", nameof(newName));
+            }
+
+            if (sourcePath.IsFile)
+            {
+                File.Move(sourcePath, Path.Combine(destinationDirectory.ToString(), newName ?? sourcePath.Name));
+            }
+            else
+            {
+                Directory.Move(sourcePath, Path.Combine(destinationDirectory.ToString(), newName ?? sourcePath.Name));
+            }
+        }
+
+        /// <summary>
+        /// Deletes the files or directories represented by the specified collection of <see cref="ChainablePath"/> instances.
+        /// If a path represents a directory, it is deleted recursively.
+        /// </summary>
+        public static void DeleteFileOrDirectory(this System.Collections.Generic.IEnumerable<ChainablePath> paths)
+        {
+            foreach (var path in paths)
+            {
+                path.DeleteFileOrDirectory();
+            }
+        }
+
+        /// <summary>
+        /// Moves files or directories represented by the specified collection of <see cref="ChainablePath"/> instances to a target directory.
+        /// </summary>
+        /// <param name="sourcePaths">The collection of paths of the files or directories to move.</param>
+        /// <param name="destinationDirectory">The target directory where the files or directories will be moved.</param>
+        public static void MoveFileOrDirectory(this System.Collections.Generic.IEnumerable<ChainablePath> sourcePaths,
+            ChainablePath destinationDirectory)
+        {
+            foreach (var sourcePath in sourcePaths)
+            {
+                sourcePath.MoveFileOrDirectory(destinationDirectory);
+            }
+        }
+
+        /// <summary>
+        /// Resolves a file name within the current path.
+        /// If the path represents a file with the specified name and that file exists, returns the path.
+        /// If the path is a directory that contains a file with the specified name, returns the path to that file.
+        /// Otherwise, returns <see cref="ChainablePath.Empty"/>.
+        /// </summary>
+        /// <param name="path">The base path to resolve from (can be a file or directory).</param>
+        /// <param name="fileName">The file name to resolve.</param>
+        /// <returns>
+        /// A <see cref="ChainablePath"/> representing the resolved file if found; otherwise, <see cref="ChainablePath.Empty"/>.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="fileName"/> is null or empty.</exception>
+        public static ChainablePath ResolveFile(this ChainablePath path, string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new ArgumentException("File name cannot be null or empty", nameof(fileName));
+            }
+
+            // Case 1: If the path is a file with the specified name and exists, return it
+            if (path.IsFile && string.Equals(path.Name, fileName, StringComparison.OrdinalIgnoreCase))
+            {
+                return path;
+            }
+
+            // Case 2: If the path is a directory, check if it contains the file
+            if (path.IsDirectory)
+            {
+                ChainablePath filePath = path / fileName;
+                if (filePath.FileExists)
+                {
+                    return filePath;
+                }
+            }
+
+            return ChainablePath.Empty;
+        }
     }
-}
 }
