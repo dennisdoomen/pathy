@@ -27,6 +27,7 @@ indent_size = 4
 indent_style = space
 indent_size = 4
 max_line_length = 130
+charset = utf-8
 
 # New line preferences
 csharp_new_line_before_open_brace = all

@@ -3,13 +3,17 @@
 using System;
 using System.IO;
 
-namespace Pathy;
-
 #pragma warning disable
+
+#nullable disable
+
+namespace Pathy
+{
 
 #if PATHY_PUBLIC
 public static class ChainablePathExtensions
 #else
+[global::Microsoft.CodeAnalysis.Embedded]
 [global::System.Diagnostics.DebuggerNonUserCode]
 internal static class ChainablePathExtensions
 #endif
@@ -126,4 +130,5 @@ internal static class ChainablePathExtensions
 
         return ChainablePath.Empty;
     }
+}
 }
