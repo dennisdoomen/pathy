@@ -14,6 +14,8 @@ using System.Text.Json.Serialization;
 
 #pragma warning disable
 
+#nullable disable
+
 namespace Pathy
 {
     /// <summary>
