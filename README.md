@@ -227,6 +227,7 @@ var relevant = changedFiles.Where(x => x.Matches("src/**/*.cs")).ToArray();
 Next to that, Pathy also provides a bunch of extension methods to operate on the file-system:
 
 * `CreateDirectoryRecursively`
+* `EnsureDirectoryExists` - like `CreateDirectoryRecursively`, but idempotent and returns the path so it can sit in the middle of a chain, e.g. `(artifacts / "logs").EnsureDirectoryExists() / "build.log"`
 * `DeleteFileOrDirectory`
 * `MoveFileOrDirectory`
 

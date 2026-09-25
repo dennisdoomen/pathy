@@ -23,6 +23,22 @@ internal static class ChainablePathExtensions
     }
 
     /// <summary>
+    /// Ensures that the directory represented by the specified <see cref="ChainablePath"/>, and any necessary
+    /// subdirectories, exist, and returns that same path so it can be used in the middle of a chain of calls.
+    /// </summary>
+    /// <remarks>
+    /// This method is idempotent: calling it on a path that already exists as a directory has no effect other than
+    /// returning that path. If the path already exists as a <em>file</em>, the underlying <see cref="Directory.CreateDirectory(string)"/>
+    /// call throws an <see cref="IOException"/>, since a file and a directory cannot share the same path.
+    /// </remarks>
+    public static ChainablePath EnsureDirectoryExists(this ChainablePath path)
+    {
+        Directory.CreateDirectory(path.ToString());
+
+        return path;
+    }
+
+    /// <summary>
     /// Deletes the file or directory represented by the specified <see cref="ChainablePath"/>.
     /// If the path represents a directory, it is deleted recursively.
     /// </summary>

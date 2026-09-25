@@ -17,6 +17,50 @@ public class ChainablePathExtensionSpecs
     }
 
     [Fact]
+    public void Can_ensure_a_directory_exists()
+    {
+        // Arrange
+        var directory = testFolder / "NewDirectory" / "NestedDirectory";
+
+        // Act
+        var result = directory.EnsureDirectoryExists();
+
+        // Assert
+        directory.DirectoryExists.Should().BeTrue();
+        result.Should().Be(directory);
+    }
+
+    [Fact]
+    public void Ensuring_an_already_existing_directory_exists_is_a_no_op()
+    {
+        // Arrange
+        var directory = testFolder / "ExistingDirectory";
+        directory.CreateDirectoryRecursively();
+        File.WriteAllText(directory / "file.txt", "Hello World!");
+
+        // Act
+        var result = directory.EnsureDirectoryExists();
+
+        // Assert
+        (directory / "file.txt").FileExists.Should().BeTrue();
+        result.Should().Be(directory);
+    }
+
+    [Fact]
+    public void Ensuring_a_directory_exists_where_a_file_already_exists_throws()
+    {
+        // Arrange
+        var file = testFolder / "file.txt";
+        File.WriteAllText(file, "Hello World!");
+
+        // Act
+        var act = () => file.EnsureDirectoryExists();
+
+        // Assert
+        act.Should().Throw<IOException>();
+    }
+
+    [Fact]
     public void Can_delete_a_file()
     {
         // Arrange
