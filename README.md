@@ -197,6 +197,23 @@ var missing = directory.ResolveFile("missing.txt");
 
 The method performs case-insensitive file name matching, so `ResolveFile("CONFIG.JSON")` will match `config.json`.
 
+### Reading and writing file content
+
+To avoid switching back and forth between `ChainablePath` and `File.*` calls, Pathy also provides thin wrapper extension methods for reading and writing file content:
+
+```csharp
+var version = (ChainablePath.Current / "version.txt").ReadAllText().Trim();
+
+(artifacts / "manifest.json").WriteAllText(JsonSerializer.Serialize(manifest));
+
+foreach (var line in (logs / "build.log").ReadLines())
+{
+    ...
+}
+```
+
+Available methods: `ReadAllText` (with an optional `Encoding`), `ReadAllLines`, `ReadLines` (lazy), `ReadAllBytes`, `WriteAllText` (with an optional `Encoding`), `WriteAllLines`, `WriteAllBytes`, `AppendAllText`, `OpenRead` and `OpenWrite`. These are thin wrappers around the equivalent `System.IO.File` methods, so they behave identically, including that the write methods do **not** create missing parent directories - call `path.Directory.CreateDirectoryRecursively()` first if you need that.
+
 ### Binding and serialization
 
 `ChainablePath` has a `TypeConverter` (`ChainablePathTypeConverter`) applied to it out of the box, so it works transparently with anything that relies on `System.ComponentModel.TypeConverter` to convert to and from a `string`, such as binding `appsettings.json` configuration to a class, MSBuild properties, or command-line argument parsers. No extra setup is required.

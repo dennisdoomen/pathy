@@ -61,15 +61,27 @@ namespace Pathy
     }
     public static class ChainablePathExtensions
     {
+        public static void AppendAllText(this Pathy.ChainablePath path, string contents) { }
         public static void CreateDirectoryRecursively(this Pathy.ChainablePath path) { }
         public static void DeleteFileOrDirectory(this Pathy.ChainablePath path) { }
         public static void DeleteFileOrDirectory(this System.Collections.Generic.IEnumerable<Pathy.ChainablePath> paths) { }
         public static Pathy.ChainablePath EnsureDirectoryExists(this Pathy.ChainablePath path) { }
         public static void MoveFileOrDirectory(this System.Collections.Generic.IEnumerable<Pathy.ChainablePath> sourcePaths, Pathy.ChainablePath destinationDirectory) { }
         public static void MoveFileOrDirectory(this Pathy.ChainablePath sourcePath, Pathy.ChainablePath destinationDirectory, string newName = null) { }
+        public static System.IO.FileStream OpenRead(this Pathy.ChainablePath path) { }
+        public static System.IO.FileStream OpenWrite(this Pathy.ChainablePath path) { }
+        public static byte[] ReadAllBytes(this Pathy.ChainablePath path) { }
+        public static string[] ReadAllLines(this Pathy.ChainablePath path) { }
+        public static string ReadAllText(this Pathy.ChainablePath path) { }
+        public static string ReadAllText(this Pathy.ChainablePath path, System.Text.Encoding encoding) { }
+        public static System.Collections.Generic.IEnumerable<string> ReadLines(this Pathy.ChainablePath path) { }
         public static Pathy.ChainablePath ResolveFile(this Pathy.ChainablePath path, string fileName) { }
         public static void SetLastWriteTimeUtc(this Pathy.ChainablePath path, System.DateTime value) { }
         public static Pathy.ChainablePath TouchFile(this Pathy.ChainablePath path) { }
+        public static void WriteAllBytes(this Pathy.ChainablePath path, byte[] bytes) { }
+        public static void WriteAllLines(this Pathy.ChainablePath path, System.Collections.Generic.IEnumerable<string> contents) { }
+        public static void WriteAllText(this Pathy.ChainablePath path, string contents) { }
+        public static void WriteAllText(this Pathy.ChainablePath path, string contents, System.Text.Encoding encoding) { }
     }
     public sealed class ChainablePathJsonConverter : System.Text.Json.Serialization.JsonConverter<Pathy.ChainablePath>
     {
