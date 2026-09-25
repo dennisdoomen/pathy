@@ -66,6 +66,8 @@ namespace Pathy
         public static void MoveFileOrDirectory(this System.Collections.Generic.IEnumerable<Pathy.ChainablePath> sourcePaths, Pathy.ChainablePath destinationDirectory) { }
         public static void MoveFileOrDirectory(this Pathy.ChainablePath sourcePath, Pathy.ChainablePath destinationDirectory, string newName = null) { }
         public static Pathy.ChainablePath ResolveFile(this Pathy.ChainablePath path, string fileName) { }
+        public static void SetLastWriteTimeUtc(this Pathy.ChainablePath path, System.DateTime value) { }
+        public static Pathy.ChainablePath TouchFile(this Pathy.ChainablePath path) { }
     }
     public sealed class ChainablePathJsonConverter : System.Text.Json.Serialization.JsonConverter<Pathy.ChainablePath>
     {

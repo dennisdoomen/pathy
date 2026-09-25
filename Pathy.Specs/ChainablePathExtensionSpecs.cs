@@ -61,6 +61,93 @@ public class ChainablePathExtensionSpecs
     }
 
     [Fact]
+    public void Touching_a_missing_file_creates_it_and_any_missing_parent_directories()
+    {
+        // Arrange
+        var file = testFolder / "sub1" / "sub2" / "stamp.txt";
+
+        // Act
+        var result = file.TouchFile();
+
+        // Assert
+        file.FileExists.Should().BeTrue();
+        result.Should().Be(file);
+    }
+
+    [Fact]
+    public void Touching_an_existing_file_updates_its_last_write_time_without_changing_its_content()
+    {
+        // Arrange
+        var file = testFolder / "existing.txt";
+        File.WriteAllText(file, "Hello World!");
+        file.SetLastWriteTimeUtc(DateTime.UtcNow.AddDays(-1));
+
+        // Act
+        file.TouchFile();
+
+        // Assert
+        File.ReadAllText(file).Should().Be("Hello World!");
+        file.LastWriteTimeUtc.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public void Touching_a_path_that_is_already_a_directory_throws()
+    {
+        // Arrange
+        var directory = testFolder / "already-a-directory";
+        directory.CreateDirectoryRecursively();
+
+        // Act
+        var act = () => directory.TouchFile();
+
+        // Assert
+        act.Should().Throw<IOException>();
+    }
+
+    [Fact]
+    public void Can_set_the_last_write_time_of_a_file()
+    {
+        // Arrange
+        var file = testFolder / "file.txt";
+        File.WriteAllText(file, "Hello World!");
+        var expected = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // Act
+        file.SetLastWriteTimeUtc(expected);
+
+        // Assert
+        file.LastWriteTimeUtc.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Can_set_the_last_write_time_of_a_directory()
+    {
+        // Arrange
+        var directory = testFolder / "SomeDirectory";
+        directory.CreateDirectoryRecursively();
+        var expected = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // Act
+        directory.SetLastWriteTimeUtc(expected);
+
+        // Assert
+        directory.LastWriteTimeUtc.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Setting_the_last_write_time_of_a_non_existing_path_throws()
+    {
+        // Arrange
+        var missing = testFolder / "does-not-exist.txt";
+
+        // Act
+        var act = () => missing.SetLastWriteTimeUtc(DateTime.UtcNow);
+
+        // Assert
+        act.Should().Throw<FileNotFoundException>();
+    }
+
+    [Fact]
     public void Can_delete_a_file()
     {
         // Arrange

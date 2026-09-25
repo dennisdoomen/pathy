@@ -109,6 +109,68 @@ namespace Pathy
         }
 
         /// <summary>
+        /// Creates an empty file at the specified <see cref="ChainablePath"/> (and any missing parent directories)
+        /// if it does not exist yet, or updates its last write time to the current UTC time if it does, and
+        /// returns the same path so it can be used in the middle of a chain of calls.
+        /// </summary>
+        /// <remarks>
+        /// This mirrors the Unix <c>touch</c> command. Missing parent directories are created silently, the same
+        /// way <see cref="CreateDirectoryRecursively"/> does.
+        /// </remarks>
+        /// <exception cref="IOException">Thrown if <paramref name="path"/> already exists as a directory.</exception>
+        public static ChainablePath TouchFile(this ChainablePath path)
+        {
+            if (path.IsDirectory)
+            {
+                throw new IOException($"Cannot touch '{path}' because it already exists as a directory.");
+            }
+
+            if (path.FileExists)
+            {
+                File.SetLastWriteTimeUtc(path.ToString(), DateTime.UtcNow);
+            }
+            else
+            {
+                ChainablePath directory = path.Directory;
+                if (directory != ChainablePath.Empty)
+                {
+                    directory.CreateDirectoryRecursively();
+                }
+
+                using (File.Create(path.ToString()))
+                {
+                }
+            }
+
+            return path;
+        }
+
+        /// <summary>
+        /// Sets the last write time, in Coordinated Universal Time (UTC), of the file or directory represented by
+        /// the specified <see cref="ChainablePath"/>.
+        /// </summary>
+        /// <remarks>
+        /// Works for both files and directories, mirroring the way <see cref="ChainablePath.LastWriteTimeUtc"/> reads
+        /// the timestamp for either.
+        /// </remarks>
+        /// <exception cref="FileNotFoundException">Thrown if neither a file nor a directory exists at <paramref name="path"/>.</exception>
+        public static void SetLastWriteTimeUtc(this ChainablePath path, DateTime value)
+        {
+            if (path.FileExists)
+            {
+                File.SetLastWriteTimeUtc(path.ToString(), value);
+            }
+            else if (path.DirectoryExists)
+            {
+                Directory.SetLastWriteTimeUtc(path.ToString(), value);
+            }
+            else
+            {
+                throw new FileNotFoundException($"Cannot set the last write time because '{path}' does not exist.", path.ToString());
+            }
+        }
+
+        /// <summary>
         /// Resolves a file name within the current path.
         /// If the path represents a file with the specified name and that file exists, returns the path.
         /// If the path is a directory that contains a file with the specified name, returns the path to that file.
