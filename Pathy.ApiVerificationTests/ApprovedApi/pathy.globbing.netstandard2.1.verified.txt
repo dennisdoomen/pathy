@@ -3,8 +3,13 @@ namespace Pathy
 {
     public static class ChainablePathGlobbingExtensions
     {
+        public static Pathy.ChainablePath[] Glob(this Pathy.ChainablePath path, string globPattern) { }
+        public static Pathy.ChainablePath[] Glob(this Pathy.ChainablePath path, params string[] globPatterns) { }
+        public static Pathy.ChainablePath[] GlobDirectories(this Pathy.ChainablePath path, string globPattern) { }
+        public static Pathy.ChainablePath[] GlobDirectories(this Pathy.ChainablePath path, params string[] globPatterns) { }
         public static Pathy.ChainablePath[] GlobFiles(this Pathy.ChainablePath path, string globPattern) { }
         public static Pathy.ChainablePath[] GlobFiles(this Pathy.ChainablePath path, params string[] globPatterns) { }
+        public static Pathy.ChainablePath[] GlobFiles(this Pathy.ChainablePath path, string[] include, string[] exclude) { }
         public static bool Matches(this Pathy.ChainablePath path, string globPattern) { }
         public static bool Matches(this Pathy.ChainablePath path, params string[] globPatterns) { }
     }

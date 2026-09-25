@@ -657,6 +657,195 @@ public class ChainablePathSpecs
             .WithParameterName("globPatterns");
     }
 
+    [Fact]
+    public void Can_find_files_using_include_and_exclude_patterns()
+    {
+        // Arrange
+        var baseDir = testFolder / "IncludeExclude";
+        var binDir = baseDir / "bin";
+        binDir.CreateDirectoryRecursively();
+
+        File.WriteAllText(baseDir / "Program.cs", "// code");
+        File.WriteAllText(binDir / "Program.cs", "// build output");
+
+        // Act
+        var files = baseDir.GlobFiles(new[] { "**/*.cs" }, new[] { "**/bin/**" });
+
+        // Assert
+        files.Should().BeEquivalentTo([baseDir / "Program.cs"], options => options.ComparingRecordsByValue());
+    }
+
+    [Fact]
+    public void An_empty_exclude_array_excludes_nothing()
+    {
+        // Arrange
+        var baseDir = testFolder / "EmptyExclude";
+        baseDir.CreateDirectoryRecursively();
+        File.WriteAllText(baseDir / "file.cs", "// code");
+
+        // Act
+        var files = baseDir.GlobFiles(new[] { "**/*.cs" }, Array.Empty<string>());
+
+        // Assert
+        files.Should().BeEquivalentTo([baseDir / "file.cs"], options => options.ComparingRecordsByValue());
+    }
+
+    [Fact]
+    public void GlobFiles_with_include_and_exclude_throws_when_no_include_patterns_provided()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.GlobFiles(Array.Empty<string>(), new[] { "**/bin/**" });
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*At least one glob pattern must be provided*")
+            .WithParameterName("include");
+    }
+
+    [Fact]
+    public void GlobFiles_with_include_and_exclude_throws_when_exclude_is_null()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.GlobFiles(new[] { "**/*.cs" }, null);
+
+        act.Should().Throw<ArgumentNullException>()
+            .WithParameterName("exclude");
+    }
+
+    [Fact]
+    public void GlobFiles_with_include_and_exclude_throws_when_an_exclude_pattern_is_empty()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.GlobFiles(new[] { "**/*.cs" }, new[] { "" });
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("exclude");
+    }
+
+    [Fact]
+    public void Can_find_directories_using_a_globbing_pattern()
+    {
+        // Arrange
+        var baseDir = testFolder / "Directories";
+        (baseDir / "src" / "Pathy.Specs").CreateDirectoryRecursively();
+        (baseDir / "src" / "Pathy.Globbing").CreateDirectoryRecursively();
+        (baseDir / "src" / "Pathy").CreateDirectoryRecursively();
+
+        // Act
+        var directories = baseDir.GlobDirectories("**/*.Specs");
+
+        // Assert
+        directories.Should().BeEquivalentTo([baseDir / "src" / "Pathy.Specs"], options => options.ComparingRecordsByValue());
+    }
+
+    [Fact]
+    public void Can_find_directories_using_multiple_globbing_patterns()
+    {
+        // Arrange
+        var baseDir = testFolder / "MultipleDirectoryPatterns";
+        (baseDir / "src" / "Pathy.Specs").CreateDirectoryRecursively();
+        (baseDir / "src" / "Pathy.Globbing").CreateDirectoryRecursively();
+        (baseDir / "src" / "Pathy").CreateDirectoryRecursively();
+
+        // Act
+        var directories = baseDir.GlobDirectories("**/*.Specs", "**/*.Globbing");
+
+        // Assert
+        directories.Should().BeEquivalentTo([
+            baseDir / "src" / "Pathy.Specs",
+            baseDir / "src" / "Pathy.Globbing"
+        ], options => options.ComparingRecordsByValue());
+    }
+
+    [Fact]
+    public void GlobDirectories_returns_an_empty_array_when_the_base_directory_does_not_exist()
+    {
+        // Arrange
+        var missing = testFolder / "does-not-exist";
+
+        // Act
+        var directories = missing.GlobDirectories("**/*");
+
+        // Assert
+        directories.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GlobDirectories_throws_when_no_patterns_provided()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.GlobDirectories(Array.Empty<string>());
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*At least one glob pattern must be provided*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void GlobDirectories_throws_when_a_pattern_is_empty()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.GlobDirectories("**/*.Specs", "");
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Glob patterns cannot be null or empty*")
+            .WithParameterName("globPatterns");
+    }
+
+    [Fact]
+    public void Can_find_both_files_and_directories_using_glob()
+    {
+        // Arrange
+        var baseDir = testFolder / "Glob";
+        var subDir = baseDir / "sub";
+        subDir.CreateDirectoryRecursively();
+        File.WriteAllText(baseDir / "file.txt", "Hello World!");
+
+        // Act
+        var results = baseDir.Glob("**/*");
+
+        // Assert
+        results.Should().BeEquivalentTo([
+            baseDir / "file.txt",
+            subDir
+        ], options => options.ComparingRecordsByValue());
+    }
+
+    [Fact]
+    public void Glob_throws_when_no_patterns_provided()
+    {
+        // Arrange
+        var temp = ChainablePath.Temp / "dir1";
+        temp.CreateDirectoryRecursively();
+
+        // Act & Assert
+        var act = () => temp.Glob(Array.Empty<string>());
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*At least one glob pattern must be provided*")
+            .WithParameterName("globPatterns");
+    }
+
     // Issue #35 asked for a `Match(wildcard)` method and was closed without shipping a public API. `Matches`
     // (below) is what actually delivers that capability - purely in-memory, without ever touching the file
     // system or requiring the path to exist.
