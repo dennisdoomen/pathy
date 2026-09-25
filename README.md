@@ -146,7 +146,7 @@ Given an instance of `ChainablePath`, you can get a lot of useful information:
 * Want to know the delta between two paths? Use `AsRelativeTo`.
 * To determine if a file has a case-insensitive extension, use `HasExtension(".txt")` or `HasExtension("txt")`.
 * To check if a path has a specific file or directory name (case-insensitive), use `HasName("MyFile.txt")`.
-* Get the last write time in UTC using `LastWriteTimeUtc` for both files and directories.
+* Get the last write time in UTC using `LastWriteTimeUtc` for both files and directories, or set it using `SetLastWriteTimeUtc(value)`.
 * To do a best-effort check for characters that are invalid on the current platform, use `IsValid` (see [Edge cases](#edge-cases-invalid-characters-long-paths-and-unc-paths) below).
 * To clean up `.` and `..` segments without reading the current directory or file system, use `Normalize()`.
 
@@ -264,6 +264,7 @@ Next to that, Pathy also provides a bunch of extension methods to operate on the
 * `EnsureDirectoryExists` - like `CreateDirectoryRecursively`, but idempotent and returns the path so it can sit in the middle of a chain, e.g. `(artifacts / "logs").EnsureDirectoryExists() / "build.log"`
 * `DeleteFileOrDirectory`
 * `MoveFileOrDirectory`
+* `TouchFile` - creates an empty file (and any missing parent directories) if it doesn't exist yet, or updates its last write time to now if it does. Returns the path so it can be chained.
 
 These methods also support operating on collections of `ChainablePath` objects:
 
@@ -279,6 +280,10 @@ files.DeleteFileOrDirectory();
 // Move multiple files to a destination directory
 var filesToMove = (ChainablePath.Current / "source").GlobFiles("*.txt");
 filesToMove.MoveFileOrDirectory(ChainablePath.Current / "destination");
+
+// Create or update a stamp file, and make a test deterministic instead of sleeping
+var stamp = (artifacts / ".build-complete").TouchFile();
+(temp / "input.txt").SetLastWriteTimeUtc(DateTime.UtcNow.AddHours(-1));
 ```
 
 ## Migrating from `Path.Combine`, `FileInfo` or Nuke's `AbsolutePath`
