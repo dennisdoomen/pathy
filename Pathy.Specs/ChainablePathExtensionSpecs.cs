@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using FluentAssertions;
 using Xunit;
 
@@ -145,6 +146,134 @@ public class ChainablePathExtensionSpecs
 
         // Assert
         act.Should().Throw<FileNotFoundException>();
+    }
+
+    [Fact]
+    public void Can_write_and_read_all_text()
+    {
+        // Arrange
+        var file = testFolder / "text.txt";
+
+        // Act
+        file.WriteAllText("Hello World!");
+
+        // Assert
+        file.ReadAllText().Should().Be("Hello World!");
+    }
+
+    [Fact]
+    public void Can_write_and_read_all_text_using_a_specific_encoding()
+    {
+        // Arrange
+        var file = testFolder / "encoded.txt";
+
+        // Act
+        file.WriteAllText("Hello World!", Encoding.ASCII);
+
+        // Assert
+        file.ReadAllText(Encoding.ASCII).Should().Be("Hello World!");
+    }
+
+    [Fact]
+    public void Can_write_and_read_all_lines()
+    {
+        // Arrange
+        var file = testFolder / "lines.txt";
+        var lines = new[] { "line1", "line2", "line3" };
+
+        // Act
+        file.WriteAllLines(lines);
+
+        // Assert
+        file.ReadAllLines().Should().Equal(lines);
+    }
+
+    [Fact]
+    public void Can_lazily_read_lines()
+    {
+        // Arrange
+        var file = testFolder / "lazy-lines.txt";
+        var lines = new[] { "line1", "line2", "line3" };
+        file.WriteAllLines(lines);
+
+        // Act
+        var result = file.ReadLines();
+
+        // Assert
+        result.Should().Equal(lines);
+    }
+
+    [Fact]
+    public void Can_write_and_read_all_bytes()
+    {
+        // Arrange
+        var file = testFolder / "data.bin";
+        var bytes = new byte[] { 1, 2, 3, 4, 5 };
+
+        // Act
+        file.WriteAllBytes(bytes);
+
+        // Assert
+        file.ReadAllBytes().Should().Equal(bytes);
+    }
+
+    [Fact]
+    public void Can_append_text_to_a_new_file()
+    {
+        // Arrange
+        var file = testFolder / "appended.txt";
+
+        // Act
+        file.AppendAllText("Hello");
+        file.AppendAllText(" World!");
+
+        // Assert
+        file.ReadAllText().Should().Be("Hello World!");
+    }
+
+    [Fact]
+    public void Writing_text_does_not_create_missing_parent_directories()
+    {
+        // Arrange
+        var file = testFolder / "missing-directory" / "file.txt";
+
+        // Act
+        var act = () => file.WriteAllText("Hello World!");
+
+        // Assert
+        act.Should().Throw<DirectoryNotFoundException>();
+    }
+
+    [Fact]
+    public void Can_open_a_file_for_reading()
+    {
+        // Arrange
+        var file = testFolder / "open-read.txt";
+        File.WriteAllText(file, "Hello World!");
+
+        // Act
+        using var stream = file.OpenRead();
+        using var reader = new StreamReader(stream);
+
+        // Assert
+        reader.ReadToEnd().Should().Be("Hello World!");
+    }
+
+    [Fact]
+    public void Can_open_a_file_for_writing()
+    {
+        // Arrange
+        var file = testFolder / "open-write.txt";
+
+        // Act
+        using (var stream = file.OpenWrite())
+        using (var writer = new StreamWriter(stream))
+        {
+            writer.Write("Hello World!");
+        }
+
+        // Assert
+        File.ReadAllText(file).Should().Be("Hello World!");
     }
 
     [Fact]
