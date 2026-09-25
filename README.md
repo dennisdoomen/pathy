@@ -245,6 +245,25 @@ ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.js
 
 // Match files with multiple patterns
 ChainablePath[] files = (ChainablePath.Current / "Artifacts").GlobFiles("**/*.txt", "**/*.md", "**/*.json");
+
+// Match files while excluding others - the matcher never descends into the excluded directories
+ChainablePath[] sourceFiles = ChainablePath.Current.GlobFiles(
+    include: new[] { "**/*.cs" },
+    exclude: new[] { "**/bin/**", "**/obj/**" });
+```
+
+`GlobFiles(include, exclude)` maps directly onto the underlying matcher's `AddInclude`/`AddExclude` calls. Both parameters are `string[]`, so passing them in the wrong order compiles without complaint - `include` always comes first, `exclude` always second.
+
+`GlobDirectories` works the same way as `GlobFiles`, but matches directories instead:
+
+```csharp
+ChainablePath[] testProjects = ChainablePath.Current.GlobDirectories("**/*.Specs");
+```
+
+And `Glob` matches both files and directories for the same pattern(s):
+
+```csharp
+ChainablePath[] everything = (ChainablePath.Current / "artifacts").Glob("**/*");
 ```
 
 The same package also provides `Matches`, which tests whether a path matches a glob pattern without touching

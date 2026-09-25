@@ -75,6 +75,167 @@ namespace Pathy
         }
 
         /// <summary>
+        /// Matches files in the specified directory or subdirectories according to the provided include patterns,
+        /// while skipping anything that matches one of the exclude patterns, and returns the matches as an array of
+        /// <see cref="ChainablePath"/> objects.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This maps directly onto the underlying matcher's <c>AddInclude</c>/<c>AddExclude</c> calls: a file is
+        /// only returned when it matches at least one <paramref name="include"/> pattern and none of the
+        /// <paramref name="exclude"/> patterns. Excluding a pattern such as <c>**/bin/**</c> or <c>**/obj/**</c> is
+        /// both faster and less error-prone than post-filtering the result of <see cref="GlobFiles(ChainablePath, string[])"/>
+        /// with LINQ, because the matcher never descends into the excluded directories in the first place.
+        /// </para>
+        /// <para>
+        /// Because both parameters share the same <c>string[]</c> type, passing them in the wrong order compiles
+        /// without error but silently inverts the intent: <paramref name="include"/> always comes first,
+        /// <paramref name="exclude"/> always second.
+        /// </para>
+        /// See also <seealso href="https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing"/>
+        /// </remarks>
+        /// <param name="path">The base directory path to start the glob search from.</param>
+        /// <param name="include">One or more glob patterns a file must match to be included, e.g. **/*.cs</param>
+        /// <param name="exclude">Zero or more glob patterns that exclude an otherwise-included file, e.g. **/bin/**</param>
+        /// <exception cref="ArgumentException">Thrown if no include patterns are provided, or if any include or exclude pattern is null or empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="exclude"/> is <see langword="null"/>.</exception>
+        public static ChainablePath[] GlobFiles(this ChainablePath path, string[] include, string[] exclude)
+        {
+            ValidateGlobPatterns(include, nameof(include));
+
+            if (exclude == null)
+            {
+                throw new ArgumentNullException(nameof(exclude));
+            }
+
+            foreach (string pattern in exclude)
+            {
+                if (string.IsNullOrWhiteSpace(pattern))
+                {
+                    throw new ArgumentException("Glob patterns cannot be null or empty", nameof(exclude));
+                }
+            }
+
+            Matcher matcher = new(StringComparison.OrdinalIgnoreCase);
+            foreach (string pattern in include)
+            {
+                matcher.AddInclude(pattern);
+            }
+
+            foreach (string pattern in exclude)
+            {
+                matcher.AddExclude(pattern);
+            }
+
+            return matcher
+                .Execute(new DirectoryInfoWrapper(path.ToDirectoryInfo()))
+                .Files
+                .Select(file => ChainablePath.From(path / file.Path))
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Matches directories in the specified directory or subdirectories according to the provided glob pattern
+        /// and returns them as an array of <see cref="ChainablePath"/> objects.
+        /// </summary>
+        /// <remarks>
+        /// See also <seealso href="https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing"/>
+        /// </remarks>
+        /// <param name="path">The base directory path to start the glob search from.</param>
+        /// <param name="globPattern">The glob pattern used to match directory paths, e.g. **/*.Specs or dir/**</param>
+        public static ChainablePath[] GlobDirectories(this ChainablePath path, string globPattern)
+        {
+            return GlobDirectories(path, new[] { globPattern });
+        }
+
+        /// <summary>
+        /// Matches directories in the specified directory or subdirectories according to the provided glob patterns
+        /// and returns them as an array of <see cref="ChainablePath"/> objects.
+        /// </summary>
+        /// <remarks>
+        /// Unlike <see cref="GlobFiles(ChainablePath, string[])"/>, the underlying matcher does not report matched
+        /// directories directly, so this enumerates every directory under <paramref name="path"/> and matches each
+        /// one's path (relative to <paramref name="path"/>) against the provided patterns.
+        /// See also <seealso href="https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing"/>
+        /// </remarks>
+        /// <param name="path">The base directory path to start the glob search from.</param>
+        /// <param name="globPatterns">One or more glob patterns used to match directory paths, e.g. **/*.Specs or dir/**</param>
+        /// <exception cref="ArgumentException">Thrown if no glob patterns are provided or if any pattern is null or empty.</exception>
+        public static ChainablePath[] GlobDirectories(this ChainablePath path, params string[] globPatterns)
+        {
+            ValidateGlobPatterns(globPatterns, nameof(globPatterns));
+
+            if (!path.DirectoryExists)
+            {
+                return Array.Empty<ChainablePath>();
+            }
+
+            Matcher matcher = new(StringComparison.OrdinalIgnoreCase);
+            foreach (string pattern in globPatterns)
+            {
+                matcher.AddInclude(pattern);
+            }
+
+            string basePath = path.ToString();
+
+            return Directory.EnumerateDirectories(basePath, "*", SearchOption.AllDirectories)
+                .Where(directory => matcher.Match(basePath, directory).HasMatches)
+                .Select(ChainablePath.From)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Matches both files and directories in the specified directory or subdirectories according to the
+        /// provided glob pattern and returns them as an array of <see cref="ChainablePath"/> objects.
+        /// </summary>
+        /// <remarks>
+        /// Equivalent to concatenating the results of <see cref="GlobFiles(ChainablePath, string)"/> and
+        /// <see cref="GlobDirectories(ChainablePath, string)"/> for the same pattern.
+        /// See also <seealso href="https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing"/>
+        /// </remarks>
+        /// <param name="path">The base directory path to start the glob search from.</param>
+        /// <param name="globPattern">The glob pattern used to match file and directory paths, e.g. **/*.cs or **/*</param>
+        public static ChainablePath[] Glob(this ChainablePath path, string globPattern)
+        {
+            return Glob(path, new[] { globPattern });
+        }
+
+        /// <summary>
+        /// Matches both files and directories in the specified directory or subdirectories according to the
+        /// provided glob patterns and returns them as an array of <see cref="ChainablePath"/> objects.
+        /// </summary>
+        /// <remarks>
+        /// Equivalent to concatenating the results of <see cref="GlobFiles(ChainablePath, string[])"/> and
+        /// <see cref="GlobDirectories(ChainablePath, string[])"/> for the same patterns.
+        /// See also <seealso href="https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing"/>
+        /// </remarks>
+        /// <param name="path">The base directory path to start the glob search from.</param>
+        /// <param name="globPatterns">One or more glob patterns used to match file and directory paths, e.g. **/*.cs or **/*</param>
+        /// <exception cref="ArgumentException">Thrown if no glob patterns are provided or if any pattern is null or empty.</exception>
+        public static ChainablePath[] Glob(this ChainablePath path, params string[] globPatterns)
+        {
+            return GlobFiles(path, globPatterns)
+                .Concat(GlobDirectories(path, globPatterns))
+                .ToArray();
+        }
+
+        private static void ValidateGlobPatterns(string[] globPatterns, string paramName)
+        {
+            if (globPatterns == null || globPatterns.Length == 0)
+            {
+                throw new ArgumentException("At least one glob pattern must be provided", paramName);
+            }
+
+            foreach (string pattern in globPatterns)
+            {
+                if (string.IsNullOrWhiteSpace(pattern))
+                {
+                    throw new ArgumentException("Glob patterns cannot be null or empty", paramName);
+                }
+            }
+        }
+
+        /// <summary>
         /// Determines whether this path matches the provided glob pattern.
         /// </summary>
         /// <remarks>
