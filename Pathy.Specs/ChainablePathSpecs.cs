@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using Xunit;
@@ -31,6 +33,33 @@ public class ChainablePathSpecs
         // Assert
         path.DirectoryName.Should().Be(Path.GetDirectoryName(location));
         path.IsRooted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Can_sort_paths_by_segments()
+    {
+        var paths = new[]
+        {
+            ChainablePath.From("a/b/c"),
+            ChainablePath.From("a-b"),
+            ChainablePath.From("a/b")
+        };
+
+        paths.OrderBy(path => path, PathComparer.Ordinal).Should().Equal(
+            ChainablePath.From("a/b"),
+            ChainablePath.From("a/b/c"),
+            ChainablePath.From("a-b"));
+    }
+
+    [Fact]
+    public void Can_compare_paths_with_an_explicit_case_policy()
+    {
+        var upper = ChainablePath.From("folder/File.txt");
+        var lower = ChainablePath.From("folder/file.txt");
+
+        PathComparer.Ordinal.Equals(upper, lower).Should().BeFalse();
+        PathComparer.OrdinalIgnoreCase.Equals(upper, lower).Should().BeTrue();
+        new SortedSet<ChainablePath>(new[] { upper, lower }, PathComparer.OrdinalIgnoreCase).Should().ContainSingle();
     }
 
     [Fact]
@@ -78,13 +107,62 @@ public class ChainablePathSpecs
     public void Can_format_a_path_using_ToString_with_format_and_provider()
     {
         // Arrange
+        var path = ChainablePath.From(@"C:\some\my file.txt");
+
+        // Act
+        string result = path.ToString("U", CultureInfo.InvariantCulture);
+
+        // Assert
+        result.Should().Be("C:/some/my file.txt");
+    }
+
+    [Theory]
+    [InlineData("N", @"C:\some\my file.txt")]
+    [InlineData("U", "C:/some/my file.txt")]
+    [InlineData("W", @"C:\some\my file.txt")]
+    [InlineData("Q", "\"C:\\some\\my file.txt\"")]
+    public void Can_format_a_path_using_a_named_format(string format, string expected)
+    {
+        // Arrange
+        var path = ChainablePath.From(@"C:\some\my file.txt");
+
+        // Act
+        string result = path.ToString(format, CultureInfo.InvariantCulture);
+
+        // Assert
+        result.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Named_formatting_methods_match_their_format_specifiers()
+    {
+        // Arrange
+        var path = ChainablePath.From(@"C:\some\my file.txt");
+
+        // Act
+        string unixPath = path.ToUnixPath();
+        string windowsPath = path.ToWindowsPath();
+        string nativePath = path.ToNativePath();
+        string quotedPath = path.ToQuotedString();
+
+        // Assert
+        unixPath.Should().Be(path.ToString("U", null));
+        windowsPath.Should().Be(path.ToString("W", null));
+        nativePath.Should().Be(path.ToString("N", null));
+        quotedPath.Should().Be(path.ToString("Q", null));
+    }
+
+    [Fact]
+    public void An_unknown_format_is_not_supported()
+    {
+        // Arrange
         var path = ChainablePath.From(@"C:\some\file.txt");
 
         // Act
-        string result = path.ToString("whatever", CultureInfo.InvariantCulture);
+        var act = () => path.ToString("X", CultureInfo.InvariantCulture);
 
         // Assert
-        result.Should().Be(@"C:\some\file.txt");
+        act.Should().Throw<FormatException>();
     }
 
 #if NET6_0_OR_GREATER
@@ -173,6 +251,98 @@ public class ChainablePathSpecs
         // Assert
         path.DirectoryName.Should().Be("temp");
         path.IsRooted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ToString_keeps_a_relative_path_as_provided()
+    {
+        // Act
+        var path = ChainablePath.From("src/./generated/../docs/readme.md");
+
+        // Assert
+        path.ToString().Should().Be("src" + Slash + "." + Slash + "generated" + Slash + ".." + Slash + "docs" +
+            Slash + "readme.md");
+    }
+
+    [Fact]
+    public void Normalize_removes_current_directory_segments()
+    {
+        // Act
+        var path = ChainablePath.From("src/./docs/./readme.md").Normalize();
+
+        // Assert
+        path.ToString().Should().Be("src" + Slash + "docs" + Slash + "readme.md");
+        path.IsRooted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Normalize_resolves_internal_parent_directory_segments()
+    {
+        // Act
+        var path = ChainablePath.From("src/generated/../docs/readme.md").Normalize();
+
+        // Assert
+        path.ToString().Should().Be("src" + Slash + "docs" + Slash + "readme.md");
+        path.IsRooted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Normalize_keeps_unresolved_parent_directory_segments_in_relative_paths()
+    {
+        // Act
+        var path = ChainablePath.From("../../shared/../assets").Normalize();
+
+        // Assert
+        path.ToString().Should().Be(".." + Slash + ".." + Slash + "assets");
+        path.IsRooted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Normalize_keeps_relative_paths_relative()
+    {
+        // Act
+        var path = ChainablePath.From("does-not-exist/../still-relative").Normalize();
+
+        // Assert
+        path.ToString().Should().Be("still-relative");
+        path.IsRooted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Normalize_keeps_absolute_paths_absolute()
+    {
+        // Arrange
+        ChainablePath root = ChainablePath.From(Path.GetPathRoot(Environment.CurrentDirectory)!);
+
+        // Act
+        var path = (root / "src" / ".." / "docs").Normalize();
+
+        // Assert
+        path.ToString().Should().Be(root.ToString() + "docs");
+        path.IsRooted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Normalize_does_not_move_above_the_root_of_an_absolute_path()
+    {
+        // Arrange
+        ChainablePath root = ChainablePath.From(Path.GetPathRoot(Environment.CurrentDirectory)!);
+
+        // Act
+        var path = (root / "..").Normalize();
+
+        // Assert
+        path.Should().Be(root);
+    }
+
+    [Fact]
+    public void Normalize_preserves_trailing_slashes()
+    {
+        // Act
+        var path = ChainablePath.From("src/./docs/").Normalize();
+
+        // Assert
+        path.ToString().Should().Be("src" + Slash + "docs" + Slash);
     }
 
     [Fact]

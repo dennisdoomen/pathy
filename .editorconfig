@@ -8,6 +8,7 @@ root = true
 end_of_line = crlf
 insert_final_newline = true
 trim_trailing_whitespace = true
+charset = utf-8
 
 # Xml project files
 [*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
