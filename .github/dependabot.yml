@@ -29,3 +29,7 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # Verify.Xunit (xUnit v2) stops at 31.12.5. Newer Verify.DiffPlex versions need a newer
+      # Verify core, which breaks Verify.Xunit at runtime with a MethodAccessException.
+      - dependency-name: "Verify.DiffPlex"
